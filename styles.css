@@ -1,0 +1,276 @@
+.recognition-wall {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.recognition-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.recognition-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recognition-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.recognition-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.recognition-info {
+    flex-grow: 1;
+}
+
+.recognition-names {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+}
+
+.recognition-date {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.recognition-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #f0f7ff;
+    color: #0066cc;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    margin: 10px 0;
+}
+
+.recognition-badge i {
+    margin-right: 5px;
+}
+
+.recognition-message {
+    color: #444;
+    line-height: 1.5;
+    margin: 15px 0;
+}
+
+.recognition-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.recognition-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.recognition-action-btn:hover {
+    color: #0066cc;
+}
+
+.recognition-points {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+/* Form Styles */
+.recognition-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recognition-form .form-group {
+    margin-bottom: 20px;
+}
+
+.recognition-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.recognition-form select,
+.recognition-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+.recognition-form select:focus,
+.recognition-form textarea:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+.recognition-form .btn-primary {
+    background: #0066cc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.recognition-form .btn-primary:hover {
+    background: #0052a3;
+}
+
+/* Leaderboard Styles */
+.recognition-leaderboard {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.leaderboard-rank {
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 40px;
+    color: #0066cc;
+}
+
+.leaderboard-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.leaderboard-info {
+    flex-grow: 1;
+}
+
+.leaderboard-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.leaderboard-points {
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Badge Icons */
+.badge-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+.post {
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.post .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.post .user-picture {
+    margin-right: 10px;
+}
+
+.post .card-body {
+    padding: 15px;
+}
+
+.post .btn-link {
+    color: #666;
+    text-decoration: none;
+    padding: 0;
+    margin-right: 15px;
+}
+
+.post .btn-link:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.post .fa-heart {
+    color: #dc3545;
+}
+
+.post .comments-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.post .comment-form {
+    margin-top: 15px;
+}
+
+.post .comment-form input {
+    border-radius: 20px;
+    padding: 8px 15px;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    border: none;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+}
+
+.list-unstyled li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.list-unstyled li:last-child {
+    border-bottom: none;
+}
+
+.text-muted {
+    font-size: 0.9em;
+}

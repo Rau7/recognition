@@ -1,0 +1,97 @@
+{{!
+    Recognition wall template.
+}}
+<div class="recognition-wall">
+    {{#records}}
+    <div class="recognition-card">
+        <div class="recognition-header">
+            <img src="{{fromuser.profileimage}}" alt="{{fromuser.fullname}}" class="recognition-avatar">
+            <div class="recognition-info">
+                <div class="recognition-names">
+                    <strong>{{fromuser.fullname}}</strong> ➔ <strong>{{touser.fullname}}</strong>
+                </div>
+                <div class="recognition-date">{{timeago}}</div>
+            </div>
+        </div>
+
+        <div class="recognition-badge">
+            <i class="fa {{badge.icon}}"></i>
+            {{badge.name}}
+        </div>
+
+        <div class="recognition-message">
+            {{message}}
+        </div>
+
+        <div class="recognition-points">
+            +{{points}} points
+        </div>
+
+        <div class="recognition-actions">
+            <div class="recognition-action-btn like-btn" data-id="{{id}}">
+                <i class="fa fa-heart{{^hasliked}}-o{{/hasliked}}"></i>
+                <span>{{likecount}}</span>
+            </div>
+            <div class="recognition-action-btn comment-btn" data-id="{{id}}">
+                <i class="fa fa-comment-o"></i>
+                <span>{{commentcount}}</span>
+            </div>
+        </div>
+
+        {{#comments}}
+        <div class="recognition-comments" style="display: none;">
+            {{#.}}
+            <div class="recognition-comment">
+                <img src="{{userimage}}" alt="{{username}}" class="comment-avatar">
+                <div class="comment-content">
+                    <strong>{{username}}</strong>
+                    <p>{{content}}</p>
+                    <small>{{timeago}}</small>
+                </div>
+            </div>
+            {{/.}}
+        </div>
+        {{/comments}}
+    </div>
+    {{/records}}
+
+    {{^records}}
+    <div class="alert alert-info">
+        {{#str}}norecords, local_recognition{{/str}}
+    </div>
+    {{/records}}
+</div>
+
+{{#js}}
+require(['jquery'], function($) {
+    $('.like-btn').click(function() {
+        var recordId = $(this).data('id');
+        var btn = $(this);
+        
+        $.post(M.cfg.wwwroot + '/local/recognition/ajax.php', {
+            action: 'like',
+            recordid: recordId,
+            sesskey: M.cfg.sesskey
+        }, function(response) {
+            if (response.success) {
+                var icon = btn.find('i');
+                var count = btn.find('span');
+                
+                if (response.liked) {
+                    icon.removeClass('fa-heart-o').addClass('fa-heart');
+                    count.text(parseInt(count.text()) + 1);
+                } else {
+                    icon.removeClass('fa-heart').addClass('fa-heart-o');
+                    count.text(parseInt(count.text()) - 1);
+                }
+            }
+        });
+    });
+
+    $('.comment-btn').click(function() {
+        var recordId = $(this).data('id');
+        var card = $(this).closest('.recognition-card');
+        card.find('.recognition-comments').slideToggle();
+    });
+});
+{{/js}}
