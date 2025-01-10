@@ -28,19 +28,18 @@
         </div>
 
         <div class="recognition-actions">
-            <div class="recognition-action-btn like-btn" data-id="{{id}}">
-                <i class="fa fa-heart{{^hasliked}}-o{{/hasliked}}"></i>
-                <span>{{likecount}}</span>
-            </div>
-            <div class="recognition-action-btn comment-btn" data-id="{{id}}">
+            <button type="button" class="btn btn-link recognition-action-btn like-btn{{#hasliked}} liked{{/hasliked}}" data-id="{{id}}">
+                <i class="fa {{#hasliked}}fa-heart{{/hasliked}}{{^hasliked}}fa-heart-o{{/hasliked}}"></i>
+                <span class="like-count">{{likecount}}</span>
+            </button>
+            <button type="button" class="btn btn-link recognition-action-btn comment-btn" data-id="{{id}}">
                 <i class="fa fa-comment-o"></i>
-                <span>{{commentcount}}</span>
-            </div>
+                <span class="comment-count">{{commentcount}}</span>
+            </button>
         </div>
 
-        {{#comments}}
         <div class="recognition-comments" style="display: none;">
-            {{#.}}
+            {{#comments}}
             <div class="recognition-comment">
                 <img src="{{userimage}}" alt="{{username}}" class="comment-avatar">
                 <div class="comment-content">
@@ -49,49 +48,124 @@
                     <small>{{timeago}}</small>
                 </div>
             </div>
-            {{/.}}
+            {{/comments}}
+            
+            <form class="comment-form">
+                <div class="input-group">
+                    <input type="text" class="form-control comment-input" placeholder="{{#str}}writecomment, local_recognition{{/str}}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">{{#str}}send, local_recognition{{/str}}</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        {{/comments}}
-    </div>
-    {{/records}}
-
-    {{^records}}
-    <div class="alert alert-info">
-        {{#str}}norecords, local_recognition{{/str}}
     </div>
     {{/records}}
 </div>
 
-{{#js}}
-require(['jquery'], function($) {
-    $('.like-btn').click(function() {
-        var recordId = $(this).data('id');
-        var btn = $(this);
+{{^records}}
+<div class="alert alert-info">
+    {{#str}}norecords, local_recognition{{/str}}
+</div>
+{{/records}}
+
+<script>
+Y.use('node', 'io', function(Y) {
+    // Beğenme işlevi
+    Y.delegate('click', function(e) {
+        e.preventDefault();
+        var btn = e.currentTarget;
+        var postId = btn.getData('id');
         
-        $.post(M.cfg.wwwroot + '/local/recognition/ajax.php', {
-            action: 'like',
-            recordid: recordId,
-            sesskey: M.cfg.sesskey
-        }, function(response) {
-            if (response.success) {
-                var icon = btn.find('i');
-                var count = btn.find('span');
-                
-                if (response.liked) {
-                    icon.removeClass('fa-heart-o').addClass('fa-heart');
-                    count.text(parseInt(count.text()) + 1);
-                } else {
-                    icon.removeClass('fa-heart').addClass('fa-heart-o');
-                    count.text(parseInt(count.text()) - 1);
+        Y.io(M.cfg.wwwroot + '/local/recognition/ajax.php', {
+            method: 'POST',
+            data: {
+                action: 'like',
+                postid: postId,
+                sesskey: M.cfg.sesskey
+            },
+            on: {
+                success: function(id, o) {
+                    try {
+                        var response = Y.JSON.parse(o.responseText);
+                        if (response.success) {
+                            var likeCount = btn.one('.like-count');
+                            var icon = btn.one('i.fa');
+                            
+                            likeCount.set('text', response.data.likes);
+                            
+                            if (response.data.isLiked) {
+                                btn.addClass('liked');
+                                icon.removeClass('fa-heart-o').addClass('fa-heart');
+                            } else {
+                                btn.removeClass('liked');
+                                icon.removeClass('fa-heart').addClass('fa-heart-o');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                    }
                 }
             }
         });
-    });
+    }, '.recognition-wall', '.like-btn');
 
-    $('.comment-btn').click(function() {
-        var recordId = $(this).data('id');
-        var card = $(this).closest('.recognition-card');
-        card.find('.recognition-comments').slideToggle();
-    });
+    // Yorum bölümünü göster/gizle
+    Y.delegate('click', function(e) {
+        e.preventDefault();
+        var commentsDiv = e.currentTarget.ancestor('.recognition-card').one('.recognition-comments');
+        if (commentsDiv) {
+            commentsDiv.toggleView();
+        }
+    }, '.recognition-wall', '.comment-btn');
+
+    // Yorum gönderme
+    Y.delegate('submit', function(e) {
+        e.preventDefault();
+        var form = e.currentTarget;
+        var input = form.one('.comment-input');
+        var content = Y.Lang.trim(input.get('value'));
+        
+        if (!content) return;
+        
+        var postId = form.ancestor('.recognition-card').one('.like-btn').getData('id');
+        
+        Y.io(M.cfg.wwwroot + '/local/recognition/ajax.php', {
+            method: 'POST',
+            data: {
+                action: 'comment',
+                postid: postId,
+                content: content,
+                sesskey: M.cfg.sesskey
+            },
+            on: {
+                success: function(id, o) {
+                    try {
+                        var response = Y.JSON.parse(o.responseText);
+                        if (response.success) {
+                            input.set('value', '');
+                            
+                            // Yeni yorumu ekle
+                            var commentHtml = '<div class="recognition-comment">' +
+                                '<img src="' + response.data.userimage + '" alt="' + response.data.username + '" class="comment-avatar">' +
+                                '<div class="comment-content">' +
+                                '<strong>' + response.data.username + '</strong>' +
+                                '<p>' + response.data.content + '</p>' +
+                                '<small>şimdi</small>' +
+                                '</div></div>';
+                            
+                            form.insert(commentHtml, 'before');
+                            
+                            // Yorum sayısını güncelle
+                            var commentCount = form.ancestor('.recognition-card').one('.comment-count');
+                            commentCount.set('text', parseInt(commentCount.get('text'), 10) + 1);
+                        }
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                    }
+                }
+            }
+        });
+    }, '.recognition-wall', '.comment-form');
 });
-{{/js}}
+</script>

@@ -14,34 +14,35 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect($returnurl);
 }
 
-$content = required_param('content', PARAM_TEXT);
+$message = required_param('message', PARAM_TEXT);
+$badgeid = optional_param('badgeid', 0, PARAM_INT);
 $fs = get_file_storage();
 $context = context_system::instance();
 
 try {
     $record = new stdClass();
-    $record->userid = $USER->id;
-    $record->content = $content;
-    $record->likes = 0;
-    $record->comments = 0;
+    $record->fromid = $USER->id;
+    $record->toid = $USER->id; // For now, sending to self
+    $record->message = $message;
+    $record->badgeid = $badgeid;
+    $record->points = 0;
     $record->timecreated = time();
-    $record->timemodified = time();
 
     // First insert the record to get the ID
-    $postid = $DB->insert_record('local_recognition_posts', $record);
+    $recordid = $DB->insert_record('local_recognition_records', $record);
 
-    // Handle image upload
-    if (!empty($_FILES['image']['name'])) {
-        $filename = $_FILES['image']['name'];
-        $filetype = $_FILES['image']['type'];
+    // Handle file upload
+    if (!empty($_FILES['attachment']['name'])) {
+        $filename = $_FILES['attachment']['name'];
+        $filetype = $_FILES['attachment']['type'];
         
         // Only allow image files
         if (strpos($filetype, 'image/') === 0) {
             $fileinfo = array(
                 'contextid' => $context->id,
                 'component' => 'local_recognition',
-                'filearea' => 'post_images',
-                'itemid' => $postid, // Use post ID as item ID
+                'filearea' => 'record_image', // Changed from 'record_images' to 'record_image'
+                'itemid' => $recordid,
                 'filepath' => '/',
                 'filename' => $filename
             );
@@ -52,11 +53,11 @@ try {
                     $fileinfo['filearea'], $fileinfo['itemid']);
             }
             
-            $storedfile = $fs->create_file_from_pathname($fileinfo, $_FILES['image']['tmp_name']);
+            $storedfile = $fs->create_file_from_pathname($fileinfo, $_FILES['attachment']['tmp_name']);
             
-            // Update the post record with the image path
-            $record->id = $postid;
-            $record->imagepath = moodle_url::make_pluginfile_url(
+            // Update the record with the image URL
+            $record->id = $recordid;
+            $record->imageurl = moodle_url::make_pluginfile_url(
                 $fileinfo['contextid'],
                 $fileinfo['component'],
                 $fileinfo['filearea'],
@@ -65,7 +66,7 @@ try {
                 $fileinfo['filename']
             )->out();
             
-            $DB->update_record('local_recognition_posts', $record);
+            $DB->update_record('local_recognition_records', $record);
         }
     }
 

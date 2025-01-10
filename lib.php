@@ -16,37 +16,65 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool false if the file not found, just send the file otherwise
  */
 function local_recognition_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
-    global $DB, $CFG, $USER;
+    global $DB;
 
     if ($context->contextlevel != CONTEXT_SYSTEM) {
         return false;
     }
 
-    // Make sure the filearea is one of our areas.
-    if ($filearea !== 'post_images') {
+    if ($filearea !== 'record_images') {
         return false;
     }
 
-    // Get the itemid.
     $itemid = array_shift($args);
-
-    // Extract the filename.
     $filename = array_pop($args);
-    if (!$args) {
-        $filepath = '/';
-    } else {
-        $filepath = '/' . implode('/', $args) . '/';
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+    if (!$record = $DB->get_record('local_recognition_records', array('id' => $itemid))) {
+        return false;
     }
 
-    // Retrieve the file from the Files API.
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'local_recognition', $filearea, $itemid, $filepath, $filename);
-    if (!$file) {
-        return false; // The file does not exist.
+    if (!$file = $fs->get_file($context->id, 'local_recognition', $filearea, $itemid, $filepath, $filename)) {
+        return false;
     }
 
-    // Send the file back.
-    send_stored_file($file, 86400, 0, $forcedownload, $options);
+    send_stored_file($file, 0, 0, true, $options);
+}
+
+function local_recognition_save_post($data) {
+    global $DB, $USER;
+
+    $context = context_system::instance();
+    
+    // Save post record
+    $record = new stdClass();
+    $record->fromid = $USER->id;
+    $record->message = $data->message;
+    $record->badgeid = !empty($data->badgeid) ? $data->badgeid : null;
+    $record->timecreated = time();
+    
+    $recordid = $DB->insert_record('local_recognition_records', $record);
+
+    // Handle file upload
+    if (!empty($_FILES['attachment']['name'])) {
+        $fs = get_file_storage();
+        
+        // Prepare file record
+        $fileinfo = array(
+            'contextid' => $context->id,
+            'component' => 'local_recognition',
+            'filearea' => 'attachment',
+            'itemid' => $recordid,
+            'filepath' => '/',
+            'filename' => $_FILES['attachment']['name']
+        );
+
+        // Save file
+        $fs->create_file_from_pathname($fileinfo, $_FILES['attachment']['tmp_name']);
+    }
+
+    return $recordid;
 }
 
 function local_recognition_extend_navigation(global_navigation $navigation) {

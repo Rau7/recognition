@@ -4,31 +4,19 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'local/recognition:manage' => array(
-        'riskbitmask' => RISK_SPAM | RISK_XSS,
-        'captype' => 'write',
+    'local/recognition:view' => array(
+        'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
+            'user' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
     ),
-    'local/recognition:give' => array(
-        'riskbitmask' => RISK_SPAM,
+    'local/recognition:manage' => array(
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'user' => CAP_ALLOW
-        )
-    ),
-    'local/recognition:receive' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'user' => CAP_ALLOW
-        )
-    ),
-    'local/recognition:viewall' => array(
-        'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'manager' => CAP_ALLOW

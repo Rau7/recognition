@@ -1,276 +1,726 @@
 .recognition-wall {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .recognition-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    padding: 20px;
-    position: relative;
-    transition: transform 0.2s;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.2s;
 }
 
 .recognition-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .recognition-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .recognition-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
 }
 
 .recognition-info {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .recognition-names {
-    font-size: 1.1em;
-    font-weight: 500;
-    color: #333;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #333;
 }
 
 .recognition-date {
-    font-size: 0.9em;
-    color: #666;
+  font-size: 0.9em;
+  color: #666;
 }
 
 .recognition-badge {
-    display: inline-flex;
-    align-items: center;
-    background: #f0f7ff;
-    color: #0066cc;
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 0.9em;
-    margin: 10px 0;
+  display: inline-flex;
+  align-items: center;
+  background: #f0f7ff;
+  color: #0066cc;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  margin: 10px 0;
 }
 
 .recognition-badge i {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .recognition-message {
-    color: #444;
-    line-height: 1.5;
-    margin: 15px 0;
+  color: #444;
+  line-height: 1.5;
+  margin: 15px 0;
 }
 
 .recognition-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
 }
 
 .recognition-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
 .recognition-action-btn:hover {
-    color: #0066cc;
+  color: #0066cc;
 }
 
 .recognition-points {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #28a745;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.9em;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
 }
 
 /* Form Styles */
 .recognition-form {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .recognition-form .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .recognition-form label {
-    display: block;
-    margin-bottom: 8px;
-    color: #333;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
 }
 
 .recognition-form select,
 .recognition-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    transition: border-color 0.2s;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.2s;
 }
 
 .recognition-form select:focus,
 .recognition-form textarea:focus {
-    border-color: #0066cc;
-    outline: none;
+  border-color: #0066cc;
+  outline: none;
 }
 
 .recognition-form .btn-primary {
-    background: #0066cc;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
+  background: #0066cc;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .recognition-form .btn-primary:hover {
-    background: #0052a3;
+  background: #0052a3;
 }
 
 /* Leaderboard Styles */
 .recognition-leaderboard {
-    max-width: 800px;
-    margin: 0 auto;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .leaderboard-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .leaderboard-rank {
-    font-size: 1.2em;
-    font-weight: bold;
-    width: 40px;
-    color: #0066cc;
+  font-size: 1.2em;
+  font-weight: bold;
+  width: 40px;
+  color: #0066cc;
 }
 
 .leaderboard-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
 }
 
 .leaderboard-info {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .leaderboard-name {
-    font-weight: 500;
-    color: #333;
+  font-weight: 500;
+  color: #333;
 }
 
 .leaderboard-points {
-    color: #28a745;
-    font-weight: 500;
+  color: #28a745;
+  font-weight: 500;
 }
 
 /* Badge Icons */
 .badge-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
 .post {
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
 }
 
 .post .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #ddd;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
 }
 
 .post .user-picture {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .post .card-body {
-    padding: 15px;
+  padding: 15px;
 }
 
 .post .btn-link {
-    color: #666;
-    text-decoration: none;
-    padding: 0;
-    margin-right: 15px;
+  color: #666;
+  text-decoration: none;
+  padding: 0;
+  margin-right: 15px;
 }
 
 .post .btn-link:hover {
-    color: #333;
-    text-decoration: none;
+  color: #333;
+  text-decoration: none;
 }
 
 .post .fa-heart {
-    color: #dc3545;
+  color: #dc3545;
 }
 
 .post .comments-section {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
 }
 
 .post .comment-form {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .post .comment-form input {
-    border-radius: 20px;
-    padding: 8px 15px;
+  border-radius: 20px;
+  padding: 8px 15px;
 }
 
 .card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: none;
 }
 
 .card-header {
-    background-color: #fff;
-    border-bottom: 1px solid #eee;
-    font-weight: bold;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
 }
 
 .list-unstyled li {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
 }
 
 .list-unstyled li:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .text-muted {
-    font-size: 0.9em;
+  font-size: 0.9em;
+}
+
+.recognition-post {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recognition-post:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.post-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  border-radius: 12px 12px 0 0;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.post-meta {
+  flex-grow: 1;
+}
+
+.post-author {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.post-time {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.badge-container {
+  padding-left: 1rem;
+}
+
+.recognition-badge {
+  background: var(--primary);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-content {
+  padding: 1.5rem;
+}
+
+.post-message {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #334155;
+  white-space: pre-wrap;
+}
+
+.post-image-container {
+  margin-top: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.post-image:hover {
+  transform: scale(1.02);
+}
+
+.post-image-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 80%, rgba(0, 0, 0, 0.05));
+  pointer-events: none;
+}
+
+.post-footer {
+  background: #f8fafc;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 12px 12px;
+}
+
+.recognition-like-btn,
+.recognition-comments-btn {
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.recognition-like-btn:hover,
+.recognition-comments-btn:hover {
+  color: var(--primary);
+  transform: scale(1.05);
+}
+
+.recognition-like-btn.liked {
+  color: #ef4444;
+}
+
+.recognition-like-btn.liked i {
+  animation: heartBeat 0.3s ease;
+}
+
+.recognition-comments {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+.comments-list {
+  margin-bottom: 1rem;
+}
+
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-left: calc(2rem * var(--depth, 0));
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.comment-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.comment-item::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  width: 1rem;
+  height: 1px;
+  background: var(--primary);
+  opacity: 0.2;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.comment-item:hover::before {
+  transform: scaleX(1);
+}
+
+.comment-item[data-depth="1"] {
+  margin-left: 2rem;
+}
+
+.comment-item[data-depth="2"] {
+  margin-left: 4rem;
+}
+
+.comment-item[data-depth="3"] {
+  margin-left: 6rem;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-right: 0.75rem;
+}
+
+.comment-content {
+  flex-grow: 1;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.comment-text {
+  font-size: 0.9rem;
+  color: #334155;
+  margin: 0;
+}
+
+.comment-time {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.recognition-comment-form .input-group {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.recognition-comment-form input {
+  border: none;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.recognition-comment-form input:focus {
+  box-shadow: none;
+}
+
+.recognition-comment-form button {
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border-radius: 0 8px 8px 0;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.recognition-comment-form .input-group {
+  border: 1px solid #e0e0e0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.recognition-comment-form .form-control {
+  border: none;
+  padding-left: 1rem;
+}
+
+.recognition-comment-form .form-control:focus {
+  box-shadow: none;
+}
+
+.recognition-comment-form .btn {
+  border-radius: 0;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Modern Post Form Styles */
+.post-form-card {
+  border: none !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.post-form-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.post-form-card .card-body {
+  padding: 1.5rem;
+}
+
+.post-textarea {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 100px;
+  resize: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-textarea:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.post-form-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.post-attachments {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.attachment-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.attachment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attachment-remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.attachment-remove:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.file-upload-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.file-upload-wrapper input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-upload-btn:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.file-upload-btn i {
+  font-size: 1.25rem;
+}
+
+.badge-select {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 0.5rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.badge-select:hover {
+  border-color: #80bdff;
+}
+
+.badge-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.post-submit-btn {
+  padding: 0.5rem 2rem;
+  border-radius: 6px;
+  background-color: var(--primary);
+  border: none;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.post-submit-btn:hover {
+  background-color: var(--primary-dark, var(--primary));
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.post-submit-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-light, rgba(0, 123, 255, 0.25));
 }
