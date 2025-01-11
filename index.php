@@ -19,15 +19,43 @@ $PAGE->requires->css('/local/recognition/styles.css');
 
 echo $OUTPUT->header();
 
-// Main container with grid layout
-echo html_writer::start_div('container-fluid');
+// Get user statistics
+$userStats = $DB->get_record_sql("
+    SELECT 
+        (SELECT COUNT(*) FROM {local_recognition_records} WHERE fromid = ?) as total_posts,
+        (SELECT COUNT(*) FROM {local_recognition_reactions} WHERE userid = ? AND type = 'like') as total_likes_given,
+        (SELECT COUNT(*) FROM {local_recognition_reactions} WHERE userid = ? AND type = 'comment') as total_comments,
+        (SELECT COUNT(*) FROM {local_recognition_reactions} r 
+         JOIN {local_recognition_records} p ON r.recordid = p.id 
+         WHERE p.fromid = ? AND r.type = 'like') as total_likes_received,
+        (SELECT COALESCE(SUM(totalpoints), 0) FROM {local_recognition_points} WHERE userid = ?) as total_points,
+        (SELECT COUNT(*) + 1 FROM 
+            (SELECT userid, totalpoints 
+             FROM {local_recognition_points} 
+             WHERE totalpoints > (SELECT COALESCE(totalpoints, 0) 
+                                FROM {local_recognition_points} 
+                                WHERE userid = ?)) t
+        ) as rank
+    ", array($USER->id, $USER->id, $USER->id, $USER->id, $USER->id, $USER->id));
+
+// Eğer hiç veri yoksa varsayılan değerler ata
+if (!$userStats) {
+    $userStats = new stdClass();
+    $userStats->total_posts = 0;
+    $userStats->total_likes_given = 0;
+    $userStats->total_comments = 0;
+    $userStats->total_likes_received = 0;
+    $userStats->total_points = 0;
+    $userStats->rank = 1;
+}
+
+// Start main container
+echo html_writer::start_div('container-fluid mt-4');
 echo html_writer::start_div('row');
 
-// Left sidebar (3 columns)
+// Left column - Top Posts
 echo html_writer::start_div('col-md-3');
-echo html_writer::start_div('card mb-4');
-echo html_writer::div(get_string('topposts', 'local_recognition'), 'card-header');
-echo html_writer::start_div('card-body');
+echo $OUTPUT->heading(get_string('topposts', 'local_recognition'));
 
 // Most liked posts
 $sql = "SELECT r.*, COUNT(l.id) as likes 
@@ -75,37 +103,9 @@ if ($commentedposts) {
     echo html_writer::end_tag('ul');
 }
 
-echo html_writer::end_div(); // card-body
-echo html_writer::end_div(); // card
-
-// Top users by points
-echo html_writer::start_div('card mb-4');
-echo html_writer::div(get_string('topusers', 'local_recognition'), 'card-header');
-echo html_writer::start_div('card-body');
-
-$sql = "SELECT u.*, COALESCE(p.total_points, 0) as points 
-        FROM {user} u 
-        LEFT JOIN {local_recognition_points} p ON p.userid = u.id 
-        ORDER BY points DESC";
-$topusers = $DB->get_records_sql($sql, null, 0, 10);
-
-if ($topusers) {
-    echo html_writer::start_tag('ul', array('class' => 'list-unstyled'));
-    foreach ($topusers as $user) {
-        echo html_writer::tag('li', 
-            fullname($user) . 
-            html_writer::tag('span', ' (' . $user->points . ' ' . get_string('points', 'local_recognition') . ')', 
-            array('class' => 'text-muted'))
-        );
-    }
-    echo html_writer::end_tag('ul');
-}
-
-echo html_writer::end_div(); // card-body
-echo html_writer::end_div(); // card
 echo html_writer::end_div(); // col-md-3
 
-// Main content area (6 columns)
+// Middle column - Posts
 echo html_writer::start_div('col-md-6');
 
 // Create post form
@@ -376,9 +376,84 @@ foreach ($posts as $post) {
 
 echo html_writer::end_div(); // col-md-6
 
-// Right sidebar (3 columns)
+// Right column - User Stats
 echo html_writer::start_div('col-md-3');
-// Add any additional sidebar content here
+echo html_writer::start_div('card user-stats-card');
+
+// User header
+echo html_writer::start_div('card-header bg-primary text-white');
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::div(mb_substr($USER->firstname, 0, 1) . mb_substr($USER->lastname, 0, 1), 'user-avatar me-2');
+echo html_writer::start_div('user-info');
+echo html_writer::tag('h5', fullname($USER), array('class' => 'mb-0'));
+echo html_writer::tag('small', get_string('rank', 'local_recognition') . ': #' . $userStats->rank, array('class' => 'text-white-50'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// Stats list
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+
+// Points
+echo html_writer::start_tag('li', array('class' => 'mb-3'));
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-star text-warning me-2'));
+echo html_writer::start_div('flex-grow-1');
+echo html_writer::tag('h6', get_string('points', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('small', number_format($userStats->total_points), array('class' => 'text-muted'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_tag('li');
+
+// Posts
+echo html_writer::start_tag('li', array('class' => 'mb-3'));
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-file-alt text-primary me-2'));
+echo html_writer::start_div('flex-grow-1');
+echo html_writer::tag('h6', get_string('posts', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('small', number_format($userStats->total_posts), array('class' => 'text-muted'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_tag('li');
+
+// Comments
+echo html_writer::start_tag('li', array('class' => 'mb-3'));
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-comments text-success me-2'));
+echo html_writer::start_div('flex-grow-1');
+echo html_writer::tag('h6', get_string('comments', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('small', number_format($userStats->total_comments), array('class' => 'text-muted'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_tag('li');
+
+// Likes Given
+echo html_writer::start_tag('li', array('class' => 'mb-3'));
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-heart text-danger me-2'));
+echo html_writer::start_div('flex-grow-1');
+echo html_writer::tag('h6', get_string('likesgiven', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('small', number_format($userStats->total_likes_given), array('class' => 'text-muted'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_tag('li');
+
+// Likes Received
+echo html_writer::start_tag('li', array('class' => 'mb-3'));
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-heart text-danger me-2'));
+echo html_writer::start_div('flex-grow-1');
+echo html_writer::tag('h6', get_string('likesreceived', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('small', number_format($userStats->total_likes_received), array('class' => 'text-muted'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+echo html_writer::end_tag('li');
+
+echo html_writer::end_tag('ul');
+echo html_writer::end_div(); // card-body
+
+echo html_writer::end_div(); // user-stats-card
 echo html_writer::end_div(); // col-md-3
 
 echo html_writer::end_div(); // row

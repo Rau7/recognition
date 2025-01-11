@@ -704,3 +704,46 @@
     transform: scale(1);
   }
 }
+
+.user-stats-card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 1rem;
+}
+
+.user-stats-card .card-header {
+  border: none;
+  padding: 1.25rem;
+}
+
+.user-stats-card .user-info {
+  flex: 1;
+}
+
+.user-stats-card .card-body {
+  padding: 1.25rem;
+}
+
+.user-stats-card li {
+  transition: transform 0.2s ease;
+}
+
+.user-stats-card li:hover {
+  transform: translateX(5px);
+}
+
+.user-stats-card h6 {
+  font-size: 0.9rem;
+  color: #2c3e50;
+}
+
+.user-stats-card small {
+  font-size: 0.85rem;
+}
+
+.user-stats-card i {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+}

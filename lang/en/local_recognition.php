@@ -96,3 +96,11 @@ $string['commentadded'] = 'Comment added successfully';
 $string['commentdeleted'] = 'Comment deleted successfully';
 $string['likeadded'] = 'Post liked successfully';
 $string['likeremoved'] = 'Like removed successfully';
+
+// Rank strings
+$string['rank'] = 'Rank';
+$string['points'] = 'Points';
+$string['posts'] = 'Posts';
+$string['comments'] = 'Comments';
+$string['likesgiven'] = 'Likes Given';
+$string['likesreceived'] = 'Likes Received';

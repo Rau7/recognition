@@ -56,6 +56,9 @@ try {
         }
     }
 
+    // Puan ekle
+    local_recognition_post_created($recordid);
+
     redirect($returnurl, get_string('postsuccessful', 'local_recognition'));
 } catch (Exception $e) {
     redirect($returnurl, get_string('posterror', 'local_recognition'), null, \core\output\notification::NOTIFY_ERROR);

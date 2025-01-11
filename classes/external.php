@@ -212,6 +212,110 @@ class external extends \external_api {
         return $result;
     }
 
+    /**
+     * Returns description of add_like() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function add_like_parameters() {
+        return new \external_function_parameters([
+            'recordid' => new \external_value(PARAM_INT, 'Record ID'),
+        ]);
+    }
+
+    /**
+     * Returns description of add_like() result value.
+     *
+     * @return \external_description
+     */
+    public static function add_like_returns() {
+        return new \external_single_structure([
+            'status' => new \external_value(PARAM_BOOL, 'Status of the operation'),
+            'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
+        ]);
+    }
+
+    /**
+     * Add like to a record.
+     *
+     * @param int $recordid Record ID
+     * @return array
+     */
+    public static function add_like($recordid) {
+        global $DB, $USER;
+
+        $params = self::validate_parameters(self::add_like_parameters(), array('recordid' => $recordid));
+        
+        $reaction = new stdClass();
+        $reaction->recordid = $params['recordid'];
+        $reaction->userid = $USER->id;
+        $reaction->type = 'like';
+        $reaction->timecreated = time();
+        $reaction->timemodified = time();
+        
+        if ($DB->insert_record('local_recognition_reactions', $reaction)) {
+            // Puan ekle
+            local_recognition_like_added($params['recordid'], $USER->id);
+            return array('status' => true, 'message' => get_string('likeadded', 'local_recognition'));
+        }
+        
+        return array('status' => false, 'message' => get_string('likeerror', 'local_recognition'));
+    }
+
+    /**
+     * Returns description of add_comment() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function add_comment_parameters() {
+        return new \external_function_parameters([
+            'recordid' => new \external_value(PARAM_INT, 'Record ID'),
+            'content' => new \external_value(PARAM_TEXT, 'Content for comment'),
+        ]);
+    }
+
+    /**
+     * Returns description of add_comment() result value.
+     *
+     * @return \external_description
+     */
+    public static function add_comment_returns() {
+        return new \external_single_structure([
+            'status' => new \external_value(PARAM_BOOL, 'Status of the operation'),
+            'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
+        ]);
+    }
+
+    /**
+     * Add comment to a record.
+     *
+     * @param int $recordid Record ID
+     * @param string $content Content for comment
+     * @return array
+     */
+    public static function add_comment($recordid, $content) {
+        global $DB, $USER;
+
+        $params = self::validate_parameters(self::add_comment_parameters(), 
+            array('recordid' => $recordid, 'content' => $content));
+        
+        $reaction = new stdClass();
+        $reaction->recordid = $params['recordid'];
+        $reaction->userid = $USER->id;
+        $reaction->type = 'comment';
+        $reaction->content = $params['content'];
+        $reaction->timecreated = time();
+        $reaction->timemodified = time();
+        
+        if ($DB->insert_record('local_recognition_reactions', $reaction)) {
+            // Puan ekle
+            local_recognition_comment_added($params['recordid'], $USER->id);
+            return array('status' => true, 'message' => get_string('commentadded', 'local_recognition'));
+        }
+        
+        return array('status' => false, 'message' => get_string('commenterror', 'local_recognition'));
+    }
+
     public static function get_posts() {
         global $DB, $USER, $OUTPUT;
 

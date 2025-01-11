@@ -3,6 +3,13 @@
 //
 defined('MOODLE_INTERNAL') || die();
 
+// Puan sabitleri
+define('RECOGNITION_POINTS_POST', 100);      // Post paylaşma puanı
+define('RECOGNITION_POINTS_LIKE_RECEIVED', 30);  // Beğeni alma puanı
+define('RECOGNITION_POINTS_COMMENT_RECEIVED', 50); // Yorum alma puanı
+define('RECOGNITION_POINTS_COMMENT_GIVEN', 20);   // Yorum yapma puanı
+define('RECOGNITION_POINTS_LIKE_GIVEN', 10);      // Beğeni yapma puanı
+
 /**
  * Serves files for the recognition plugin
  *
@@ -108,5 +115,76 @@ function local_recognition_give_badge($data) {
         return $DB->insert_record('local_recognition_records', $record);
     } catch (Exception $e) {
         return false;
+    }
+}
+
+/**
+ * Kullanıcıya puan ekler
+ * @param int $userid Kullanıcı ID
+ * @param int $points Eklenecek puan
+ * @return bool
+ */
+function local_recognition_add_points($userid, $points) {
+    global $DB;
+    
+    // Kullanıcının mevcut puanlarını al
+    $record = $DB->get_record('local_recognition_points', array('userid' => $userid));
+    
+    if ($record) {
+        // Mevcut kayıt varsa güncelle
+        $record->totalpoints += $points;
+        $record->monthpoints += $points;
+        $record->lastupdate = time();
+        return $DB->update_record('local_recognition_points', $record);
+    } else {
+        // Yeni kayıt oluştur
+        $record = new stdClass();
+        $record->userid = $userid;
+        $record->totalpoints = $points;
+        $record->monthpoints = $points;
+        $record->lastupdate = time();
+        return $DB->insert_record('local_recognition_points', $record);
+    }
+}
+
+/**
+ * Post paylaşıldığında çağrılır
+ */
+function local_recognition_post_created($postid) {
+    global $DB;
+    
+    $post = $DB->get_record('local_recognition_records', array('id' => $postid));
+    if ($post) {
+        local_recognition_add_points($post->fromid, RECOGNITION_POINTS_POST);
+    }
+}
+
+/**
+ * Beğeni eklendiğinde çağrılır
+ */
+function local_recognition_like_added($recordid, $userid) {
+    global $DB;
+    
+    $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    if ($post) {
+        // Post sahibine beğeni puanı
+        local_recognition_add_points($post->fromid, RECOGNITION_POINTS_LIKE_RECEIVED);
+        // Beğeni yapana puan
+        local_recognition_add_points($userid, RECOGNITION_POINTS_LIKE_GIVEN);
+    }
+}
+
+/**
+ * Yorum eklendiğinde çağrılır
+ */
+function local_recognition_comment_added($recordid, $userid) {
+    global $DB;
+    
+    $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    if ($post) {
+        // Post sahibine yorum puanı
+        local_recognition_add_points($post->fromid, RECOGNITION_POINTS_COMMENT_RECEIVED);
+        // Yorum yapana puan
+        local_recognition_add_points($userid, RECOGNITION_POINTS_COMMENT_GIVEN);
     }
 }
