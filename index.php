@@ -217,7 +217,7 @@ foreach ($records as $record) {
     $files = $fs->get_area_files(
         $context->id,
         'local_recognition',
-        'record_images',  // filearea'yı düzelttik
+        'record_images',
         $record->id,
         'filename',
         false
@@ -228,7 +228,7 @@ foreach ($records as $record) {
         $url = moodle_url::make_pluginfile_url(
             $context->id,
             'local_recognition',
-            'record_images',  // filearea'yı düzelttik
+            'record_images',
             $record->id,
             '/',
             $file->get_filename()
@@ -257,7 +257,7 @@ foreach ($posts as $post) {
     // User info and time
     echo html_writer::start_div('post-meta ms-2');
     echo html_writer::tag('h6', fullname($fromuser), array('class' => 'mb-0 post-author'));
-    $timeformat = get_string('strftimedatefullshort', 'core_langconfig');
+    $timeformat = get_string('strftimerecentfull', 'core_langconfig');
     echo html_writer::div(userdate($post->timecreated, $timeformat), 'post-time text-muted');
     echo html_writer::end_div();
 
@@ -281,7 +281,7 @@ foreach ($posts as $post) {
         echo html_writer::empty_tag('img', array(
             'src' => $post->attachment,
             'alt' => 'Post image',
-            'class' => 'post-image'
+            'class' => 'post-image img-fluid'
         ));
         echo html_writer::end_div();
     }
@@ -313,10 +313,41 @@ foreach ($posts as $post) {
     echo html_writer::end_div(); // card-footer
     
     // Comments section (initially hidden)
-    echo html_writer::start_div('recognition-comments mt-3', array('style' => 'display: none;'));
-    echo html_writer::start_div('comments-list');
-    echo html_writer::end_div(); // comments-list
+    echo html_writer::start_div('recognition-comments mt-3', array('id' => 'comments-' . $post->id, 'style' => 'display: none;'));
     
+    // Get comments for this post
+    $comments = $DB->get_records_sql(
+        "SELECT c.*, u.firstname, u.lastname 
+         FROM {local_recognition_reactions} c
+         JOIN {user} u ON u.id = c.userid
+         WHERE c.recordid = ? AND c.type = 'comment'
+         ORDER BY c.timecreated ASC",
+        array($post->id)
+    );
+
+    if ($comments) {
+        echo html_writer::start_div('comments-list');
+        foreach ($comments as $comment) {
+            // Hesapla yorum derinliğini (varsayılan 0)
+            $depth = isset($comment->parent_id) ? 1 : 0;
+            
+            echo html_writer::start_div('comment mb-2', array('style' => '--comment-depth: ' . $depth));
+            
+            // User avatar
+            $initials = mb_substr($comment->firstname, 0, 1) . mb_substr($comment->lastname, 0, 1);
+            echo html_writer::div($initials, 'user-avatar');
+            
+            // Comment content
+            echo html_writer::start_div('comment-content');
+            echo html_writer::tag('strong', fullname($comment), array('class' => 'mr-2'));
+            echo html_writer::tag('span', $comment->content);
+            echo html_writer::end_div();
+            
+            echo html_writer::end_div(); // comment
+        }
+        echo html_writer::end_div(); // comments-list
+    }
+
     // Comment form
     echo html_writer::start_tag('form', array(
         'class' => 'recognition-comment-form mt-3',
@@ -332,7 +363,7 @@ foreach ($posts as $post) {
     echo html_writer::start_div('input-group-append');
     echo html_writer::tag('button', get_string('comment', 'local_recognition'), array(
         'type' => 'submit',
-        'class' => 'btn btn-outline-primary'
+        'class' => 'btn'
     ));
     echo html_writer::end_div(); // input-group-append
     echo html_writer::end_div(); // input-group

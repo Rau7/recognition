@@ -39,7 +39,7 @@ function local_recognition_pluginfile($course, $cm, $context, $filearea, $args, 
         return false;
     }
 
-    send_stored_file($file, 0, 0, true, $options);
+    send_stored_file($file, 86400, 0, $forcedownload, $options);
 }
 
 function local_recognition_save_post($data) {

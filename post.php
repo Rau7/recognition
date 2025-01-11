@@ -41,7 +41,7 @@ try {
             $fileinfo = array(
                 'contextid' => $context->id,
                 'component' => 'local_recognition',
-                'filearea' => 'record_image', // Changed from 'record_images' to 'record_image'
+                'filearea' => 'record_images',
                 'itemid' => $recordid,
                 'filepath' => '/',
                 'filename' => $filename
@@ -49,24 +49,10 @@ try {
             
             if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], 
                 $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
-                $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], 
-                    $fileinfo['filearea'], $fileinfo['itemid']);
+                $fs->delete_area_files($context->id, 'local_recognition', 'record_images', $recordid);
             }
             
-            $storedfile = $fs->create_file_from_pathname($fileinfo, $_FILES['attachment']['tmp_name']);
-            
-            // Update the record with the image URL
-            $record->id = $recordid;
-            $record->imageurl = moodle_url::make_pluginfile_url(
-                $fileinfo['contextid'],
-                $fileinfo['component'],
-                $fileinfo['filearea'],
-                $fileinfo['itemid'],
-                $fileinfo['filepath'],
-                $fileinfo['filename']
-            )->out();
-            
-            $DB->update_record('local_recognition_records', $record);
+            $fs->create_file_from_pathname($fileinfo, $_FILES['attachment']['tmp_name']);
         }
     }
 
