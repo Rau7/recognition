@@ -59,7 +59,191 @@ try {
     // Puan ekle
     local_recognition_post_created($recordid);
 
+    $action = optional_param('action', '', PARAM_TEXT);
+    $content = optional_param('content', '', PARAM_TEXT);
+
+    // Add like
+    if ($action === 'like') {
+        $reaction = new stdClass();
+        $reaction->recordid = $recordid;
+        $reaction->userid = $USER->id;
+        $reaction->type = 'like';
+        $reaction->timecreated = time();
+        $reaction->timemodified = time();
+        
+        $existing = $DB->get_record('local_recognition_reactions', [
+            'recordid' => $recordid,
+            'userid' => $USER->id,
+            'type' => 'like'
+        ]);
+
+        if ($existing) {
+            // Unlike
+            if ($DB->delete_records('local_recognition_reactions', ['id' => $existing->id])) {
+                // Puanları sil
+                require_once(__DIR__ . '/lib.php');
+                local_recognition_like_removed($recordid, $USER->id);
+                
+                $likecount = $DB->count_records('local_recognition_reactions', [
+                    'recordid' => $recordid,
+                    'type' => 'like'
+                ]);
+                
+                echo json_encode(array(
+                    'error' => false,
+                    'data' => array(
+                        'success' => true,
+                        'message' => '',
+                        'data' => array(
+                            'likes' => $likecount,
+                            'isLiked' => false
+                        )
+                    )
+                ));
+            } else {
+                echo json_encode(array(
+                    'error' => true,
+                    'data' => array(
+                        'success' => false,
+                        'message' => get_string('likeerror', 'local_recognition'),
+                        'data' => null
+                    )
+                ));
+            }
+        } else {
+            // Like
+            if ($DB->insert_record('local_recognition_reactions', $reaction)) {
+                // Puan ekle
+                require_once(__DIR__ . '/lib.php');
+                local_recognition_like_added($recordid, $USER->id);
+                
+                $likecount = $DB->count_records('local_recognition_reactions', [
+                    'recordid' => $recordid,
+                    'type' => 'like'
+                ]);
+                
+                echo json_encode(array(
+                    'error' => false,
+                    'data' => array(
+                        'success' => true,
+                        'message' => '',
+                        'data' => array(
+                            'likes' => $likecount,
+                            'isLiked' => true
+                        )
+                    )
+                ));
+            } else {
+                echo json_encode(array(
+                    'error' => true,
+                    'data' => array(
+                        'success' => false,
+                        'message' => get_string('likeerror', 'local_recognition'),
+                        'data' => null
+                    )
+                ));
+            }
+        }
+    }
+
+    // Add comment
+    if ($action === 'comment') {
+        $reaction = new stdClass();
+        $reaction->recordid = $recordid;
+        $reaction->userid = $USER->id;
+        $reaction->type = 'comment';
+        $reaction->content = $content;
+        $reaction->timecreated = time();
+        $reaction->timemodified = time();
+        
+        if ($DB->insert_record('local_recognition_reactions', $reaction)) {
+            // Puan ekle
+            require_once(__DIR__ . '/lib.php');
+            local_recognition_comment_added($recordid, $USER->id);
+            
+            $commentcount = $DB->count_records('local_recognition_reactions', [
+                'recordid' => $recordid,
+                'type' => 'comment'
+            ]);
+            
+            echo json_encode(array(
+                'error' => false,
+                'data' => array(
+                    'success' => true,
+                    'message' => '',
+                    'data' => array(
+                        'comments' => $commentcount
+                    )
+                )
+            ));
+        } else {
+            echo json_encode(array(
+                'error' => true,
+                'data' => array(
+                    'success' => false,
+                    'message' => get_string('commenterror', 'local_recognition'),
+                    'data' => null
+                )
+            ));
+        }
+    }
+
     redirect($returnurl, get_string('postsuccessful', 'local_recognition'));
 } catch (Exception $e) {
     redirect($returnurl, get_string('posterror', 'local_recognition'), null, \core\output\notification::NOTIFY_ERROR);
 }
+?>
+
+<script>
+function addLike(recordId) {
+    fetch('post.php?action=like&recordid=' + recordId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.error && data.data.success) {
+            // Sayfayı yenile
+            window.location.reload();
+        } else {
+            alert(data.message || data.data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('<?php echo get_string('likeerror', 'local_recognition'); ?>');
+    });
+}
+
+function addComment(recordId) {
+    const content = document.getElementById('comment-content-' + recordId).value;
+    if (!content) {
+        alert('<?php echo get_string('commentempty', 'local_recognition'); ?>');
+        return;
+    }
+
+    fetch('post.php?action=comment&recordid=' + recordId + '&content=' + encodeURIComponent(content), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.data.success) {
+            // Yorum alanını temizle
+            document.getElementById('comment-content-' + recordId).value = '';
+            // Sayfayı yenile
+            window.location.reload();
+        } else {
+            alert(data.data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('<?php echo get_string('commenterror', 'local_recognition'); ?>');
+    });
+}
+</script>

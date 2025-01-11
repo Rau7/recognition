@@ -104,3 +104,9 @@ $string['posts'] = 'Posts';
 $string['comments'] = 'Comments';
 $string['likesgiven'] = 'Likes Given';
 $string['likesreceived'] = 'Likes Received';
+
+// New strings added
+$string['likegiven'] = 'Like given to a post';
+$string['likereceived'] = 'Like received on your post';
+$string['commentgiven'] = 'Comment added to a post';
+$string['commentreceived'] = 'Comment received on your post';

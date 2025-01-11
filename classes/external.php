@@ -230,8 +230,15 @@ class external extends \external_api {
      */
     public static function add_like_returns() {
         return new \external_single_structure([
-            'status' => new \external_value(PARAM_BOOL, 'Status of the operation'),
-            'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
+            'error' => new \external_value(PARAM_BOOL, 'Error status of the operation'),
+            'data' => new \external_single_structure([
+                'success' => new \external_value(PARAM_BOOL, 'Status of the operation'),
+                'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
+                'data' => new \external_single_structure([
+                    'likes' => new \external_value(PARAM_INT, 'Number of likes'),
+                    'isLiked' => new \external_value(PARAM_BOOL, 'Whether the user has liked'),
+                ], 'Response data', VALUE_OPTIONAL, []),
+            ], 'Response data', VALUE_OPTIONAL, []),
         ]);
     }
 
@@ -246,20 +253,77 @@ class external extends \external_api {
 
         $params = self::validate_parameters(self::add_like_parameters(), array('recordid' => $recordid));
         
-        $reaction = new stdClass();
-        $reaction->recordid = $params['recordid'];
-        $reaction->userid = $USER->id;
-        $reaction->type = 'like';
-        $reaction->timecreated = time();
-        $reaction->timemodified = time();
-        
-        if ($DB->insert_record('local_recognition_reactions', $reaction)) {
-            // Puan ekle
-            local_recognition_like_added($params['recordid'], $USER->id);
-            return array('status' => true, 'message' => get_string('likeadded', 'local_recognition'));
+        $existing = $DB->get_record('local_recognition_reactions', [
+            'recordid' => $params['recordid'],
+            'userid' => $USER->id,
+            'type' => 'like'
+        ]);
+
+        if ($existing) {
+            // Unlike
+            $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
+            
+            // Puanları sil
+            require_once(__DIR__ . '/../lib.php');
+            local_recognition_like_removed($params['recordid'], $USER->id);
+            
+            $likecount = $DB->count_records('local_recognition_reactions', [
+                'recordid' => $params['recordid'],
+                'type' => 'like'
+            ]);
+            
+            return array(
+                'error' => false,
+                'data' => array(
+                    'success' => true,
+                    'message' => '',
+                    'data' => array(
+                        'likes' => $likecount,
+                        'isLiked' => false
+                    )
+                )
+            );
+        } else {
+            // Like
+            $reaction = new \stdClass();
+            $reaction->recordid = $params['recordid'];
+            $reaction->userid = $USER->id;
+            $reaction->type = 'like';
+            $reaction->timecreated = time();
+            $reaction->timemodified = time();
+            
+            if ($DB->insert_record('local_recognition_reactions', $reaction)) {
+                // Puan ekle
+                require_once(__DIR__ . '/../lib.php');
+                local_recognition_like_added($params['recordid'], $USER->id);
+                
+                $likecount = $DB->count_records('local_recognition_reactions', [
+                    'recordid' => $params['recordid'],
+                    'type' => 'like'
+                ]);
+                
+                return array(
+                    'error' => false,
+                    'data' => array(
+                        'success' => true,
+                        'message' => '',
+                        'data' => array(
+                            'likes' => $likecount,
+                            'isLiked' => true
+                        )
+                    )
+                );
+            }
         }
         
-        return array('status' => false, 'message' => get_string('likeerror', 'local_recognition'));
+        return array(
+            'error' => true,
+            'data' => array(
+                'success' => false,
+                'message' => get_string('likeerror', 'local_recognition'),
+                'data' => null
+            )
+        );
     }
 
     /**
@@ -309,8 +373,19 @@ class external extends \external_api {
         
         if ($DB->insert_record('local_recognition_reactions', $reaction)) {
             // Puan ekle
+            require_once(__DIR__ . '/../lib.php');
             local_recognition_comment_added($params['recordid'], $USER->id);
-            return array('status' => true, 'message' => get_string('commentadded', 'local_recognition'));
+            
+            $commentcount = $DB->count_records('local_recognition_reactions', [
+                'recordid' => $params['recordid'],
+                'type' => 'comment'
+            ]);
+            
+            return array(
+                'status' => true, 
+                'message' => get_string('commentadded', 'local_recognition'),
+                'comments' => $commentcount
+            );
         }
         
         return array('status' => false, 'message' => get_string('commenterror', 'local_recognition'));
