@@ -326,3 +326,71 @@ function local_recognition_get_user_rankings() {
     
     return $rankings;
 }
+
+/**
+ * En çok beğeni alan gönderileri getirir
+ */
+function local_recognition_get_most_liked_posts($limit = 3) {
+    global $DB;
+    
+    return $DB->get_records_sql("
+        SELECT p.*, u.firstname, u.lastname, 
+               COUNT(r.id) as like_count
+        FROM {local_recognition_records} p
+        JOIN {user} u ON p.fromid = u.id
+        LEFT JOIN {local_recognition_reactions} r ON p.id = r.recordid AND r.type = 'like'
+        GROUP BY p.id, p.fromid, p.message, p.timecreated, u.firstname, u.lastname
+        HAVING COUNT(r.id) > 0
+        ORDER BY like_count DESC
+        LIMIT " . intval($limit));
+}
+
+/**
+ * En çok yorum alan gönderileri getirir
+ */
+function local_recognition_get_most_commented_posts($limit = 3) {
+    global $DB;
+    
+    return $DB->get_records_sql("
+        SELECT p.*, u.firstname, u.lastname, 
+               COUNT(r.id) as comment_count
+        FROM {local_recognition_records} p
+        JOIN {user} u ON p.fromid = u.id
+        LEFT JOIN {local_recognition_reactions} r ON p.id = r.recordid AND r.type = 'comment'
+        GROUP BY p.id, p.fromid, p.message, p.timecreated, u.firstname, u.lastname
+        HAVING COUNT(r.id) > 0
+        ORDER BY comment_count DESC
+        LIMIT " . intval($limit));
+}
+
+/**
+ * En çok beğeni yapan kullanıcıları getirir
+ */
+function local_recognition_get_most_liking_users($limit = 3) {
+    global $DB;
+    
+    return $DB->get_records_sql("
+        SELECT u.id, u.firstname, u.lastname, 
+               COUNT(r.id) as like_count
+        FROM {user} u
+        JOIN {local_recognition_reactions} r ON u.id = r.userid AND r.type = 'like'
+        GROUP BY u.id, u.firstname, u.lastname
+        ORDER BY like_count DESC
+        LIMIT " . intval($limit));
+}
+
+/**
+ * En çok yorum yapan kullanıcıları getirir
+ */
+function local_recognition_get_most_commenting_users($limit = 3) {
+    global $DB;
+    
+    return $DB->get_records_sql("
+        SELECT u.id, u.firstname, u.lastname, 
+               COUNT(r.id) as comment_count
+        FROM {user} u
+        JOIN {local_recognition_reactions} r ON u.id = r.userid AND r.type = 'comment'
+        GROUP BY u.id, u.firstname, u.lastname
+        ORDER BY comment_count DESC
+        LIMIT " . intval($limit));
+}

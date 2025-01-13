@@ -75,6 +75,8 @@ $string['mostcommentedposts'] = 'Most Commented Posts';
 $string['topusers'] = 'Top Users';
 $string['likes'] = 'likes';
 $string['comments'] = 'comments';
+$string['mostlikingusers'] = 'Most Active Likers';
+$string['mostcommentingusers'] = 'Most Active Commenters';
 
 // Time strings
 $string['justnow'] = 'Just now';

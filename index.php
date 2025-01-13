@@ -38,55 +38,121 @@ echo html_writer::start_div('row');
 
 // Left column - Top Posts
 echo html_writer::start_div('col-md-3');
-echo $OUTPUT->heading(get_string('topposts', 'local_recognition'));
 
-// Most liked posts
-$sql = "SELECT r.*, COUNT(l.id) as likes 
-        FROM {local_recognition_records} r 
-        LEFT JOIN {local_recognition_reactions} l ON l.recordid = r.id AND l.type = 'like'
-        GROUP BY r.id
-        ORDER BY likes DESC";
-$likedposts = $DB->get_records_sql($sql, null, 0, 5);
-
-if ($likedposts) {
-    echo html_writer::tag('h6', get_string('mostlikedposts', 'local_recognition'));
-    echo html_writer::start_tag('ul', array('class' => 'list-unstyled'));
-    foreach ($likedposts as $post) {
-        $user = $DB->get_record('user', array('id' => $post->fromid));
-        $content = shorten_text(strip_tags($post->message), 50);
-        echo html_writer::tag('li', 
-            fullname($user) . ': ' . $content . 
-            html_writer::tag('span', ' (' . $post->likes . ' ' . get_string('likes', 'local_recognition') . ')', 
-            array('class' => 'text-muted'))
-        );
-    }
-    echo html_writer::end_tag('ul');
+// İlk 5 kullanıcı
+echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card-header bg-primary text-white');
+echo html_writer::tag('h5', get_string('topusers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+$rank_count = 1;
+foreach (array_slice($rankings, 0, 5) as $rank) {
+    $user = $DB->get_record('user', array('id' => $rank['userid']));
+    echo html_writer::start_tag('li', array('class' => 'mb-2'));
+    echo html_writer::start_div('d-flex align-items-center');
+    echo html_writer::tag('span', '#' . $rank_count, array('class' => 'badge bg-primary me-2'));
+    echo html_writer::tag('span', fullname($user), array('class' => 'flex-grow-1'));
+    echo html_writer::tag('span', $rank['points'] . ' pts', array('class' => 'text-muted'));
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
+    $rank_count++;
 }
+echo html_writer::end_tag('ul');
+echo html_writer::end_div();
+echo html_writer::end_div();
 
-// Most commented posts
-$sql = "SELECT r.*, COUNT(c.id) as comments 
-        FROM {local_recognition_records} r 
-        LEFT JOIN {local_recognition_reactions} c ON c.recordid = r.id AND c.type = 'comment'
-        GROUP BY r.id
-        ORDER BY comments DESC";
-$commentedposts = $DB->get_records_sql($sql, null, 0, 5);
-
-if ($commentedposts) {
-    echo html_writer::tag('h6', get_string('mostcommentedposts', 'local_recognition'));
-    echo html_writer::start_tag('ul', array('class' => 'list-unstyled'));
-    foreach ($commentedposts as $post) {
-        $user = $DB->get_record('user', array('id' => $post->fromid));
-        $content = shorten_text(strip_tags($post->message), 50);
-        echo html_writer::tag('li', 
-            fullname($user) . ': ' . $content . 
-            html_writer::tag('span', ' (' . $post->comments . ' ' . get_string('comments', 'local_recognition') . ')', 
-            array('class' => 'text-muted'))
-        );
-    }
-    echo html_writer::end_tag('ul');
+// En çok beğeni alan gönderiler
+$most_liked_posts = local_recognition_get_most_liked_posts(3);
+echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card-header bg-danger text-white');
+echo html_writer::tag('h5', get_string('mostlikedposts', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+foreach ($most_liked_posts as $post) {
+    echo html_writer::start_tag('li', array('class' => 'mb-2'));
+    echo html_writer::start_div('d-flex align-items-center');
+    echo html_writer::tag('i', '', array('class' => 'fas fa-heart text-danger me-2'));
+    echo html_writer::start_div('flex-grow-1');
+    echo html_writer::tag('div', fullname((object)['firstname' => $post->firstname, 'lastname' => $post->lastname]));
+    echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+    echo html_writer::end_div();
+    echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
 }
+echo html_writer::end_tag('ul');
+echo html_writer::end_div();
+echo html_writer::end_div();
 
-echo html_writer::end_div(); // col-md-3
+// En çok yorum alan gönderiler
+$most_commented_posts = local_recognition_get_most_commented_posts(3);
+echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card-header bg-success text-white');
+echo html_writer::tag('h5', get_string('mostcommentedposts', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+foreach ($most_commented_posts as $post) {
+    echo html_writer::start_tag('li', array('class' => 'mb-2'));
+    echo html_writer::start_div('d-flex align-items-center');
+    echo html_writer::tag('i', '', array('class' => 'fas fa-comments text-success me-2'));
+    echo html_writer::start_div('flex-grow-1');
+    echo html_writer::tag('div', fullname((object)['firstname' => $post->firstname, 'lastname' => $post->lastname]));
+    echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+    echo html_writer::end_div();
+    echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
+}
+echo html_writer::end_tag('ul');
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// En çok beğeni yapan kullanıcılar
+$most_liking_users = local_recognition_get_most_liking_users(3);
+echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card-header bg-info text-white');
+echo html_writer::tag('h5', get_string('mostlikingusers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+foreach ($most_liking_users as $user) {
+    echo html_writer::start_tag('li', array('class' => 'mb-2'));
+    echo html_writer::start_div('d-flex align-items-center');
+    echo html_writer::tag('i', '', array('class' => 'fas fa-thumbs-up text-info me-2'));
+    echo html_writer::tag('span', fullname((object)['firstname' => $user->firstname, 'lastname' => $user->lastname]), array('class' => 'flex-grow-1'));
+    echo html_writer::tag('span', $user->like_count, array('class' => 'badge bg-info'));
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
+}
+echo html_writer::end_tag('ul');
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// En çok yorum yapan kullanıcılar
+$most_commenting_users = local_recognition_get_most_commenting_users(3);
+echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card-header bg-warning text-dark');
+echo html_writer::tag('h5', get_string('mostcommentingusers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+echo html_writer::start_div('card-body');
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+foreach ($most_commenting_users as $user) {
+    echo html_writer::start_tag('li', array('class' => 'mb-2'));
+    echo html_writer::start_div('d-flex align-items-center');
+    echo html_writer::tag('i', '', array('class' => 'fas fa-comment text-warning me-2'));
+    echo html_writer::tag('span', fullname((object)['firstname' => $user->firstname, 'lastname' => $user->lastname]), array('class' => 'flex-grow-1'));
+    echo html_writer::tag('span', $user->comment_count, array('class' => 'badge bg-warning text-dark'));
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
+}
+echo html_writer::end_tag('ul');
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+echo html_writer::end_div(); // col-md-3 end
 
 // Middle column - Posts
 echo html_writer::start_div('col-md-6');
