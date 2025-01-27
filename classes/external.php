@@ -100,8 +100,10 @@ class external extends \external_api {
                             $html .= \html_writer::start_div('comment mb-2', ['style' => $style]);
                             
                             // User avatar with initials
-                            $initials = mb_substr($comment->firstname, 0, 1) . mb_substr($comment->lastname, 0, 1);
-                            $html .= \html_writer::div($initials, 'user-avatar');
+                            global $OUTPUT, $DB;
+                            $user = $DB->get_record('user', array('id' => $comment->userid));
+                            $userpicture = $OUTPUT->user_picture($user, array('size' => 40));
+                            $html .= \html_writer::div($userpicture, 'user-avatar');
                             
                             $html .= \html_writer::start_div('comment-content');
                             $html .= \html_writer::tag('strong', fullname($comment), ['class' => 'mr-2']);
@@ -186,8 +188,9 @@ class external extends \external_api {
                     $commenthtml = \html_writer::start_div('comment mb-2');
                     
                     // User avatar with initials
-                    $initials = mb_substr($USER->firstname, 0, 1) . mb_substr($USER->lastname, 0, 1);
-                    $commenthtml .= \html_writer::div($initials, 'user-avatar');
+                    global $OUTPUT;
+                    $userpicture = $OUTPUT->user_picture($USER, array('size' => 40));
+                    $commenthtml .= \html_writer::div($userpicture, 'user-avatar');
                     
                     $commenthtml .= \html_writer::start_div('comment-content');
                     $commenthtml .= \html_writer::tag('strong', fullname($USER), ['class' => 'mr-2']);

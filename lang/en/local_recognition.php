@@ -112,3 +112,22 @@ $string['likegiven'] = 'Like given to a post';
 $string['likereceived'] = 'Like received on your post';
 $string['commentgiven'] = 'Comment added to a post';
 $string['commentreceived'] = 'Comment received on your post';
+
+// Recognition badges
+$string['createrecognition'] = 'Create Recognition';
+$string['selectbadge'] = 'Select Recognition Badge';
+$string['writeyourmessage'] = 'Write your message...';
+$string['visibleto'] = 'Visible to';
+$string['allcompany'] = 'All Company';
+$string['department'] = 'Department';
+$string['team'] = 'Team';
+
+// Badge types
+$string['creative'] = 'Creative';
+$string['teamplayer'] = 'Team Player';
+$string['congratulations'] = 'Congratulations';
+$string['employeeofmonth'] = 'Employee of the Month';
+$string['leadership'] = 'Leadership';
+$string['customerservice'] = 'Customer Service';
+$string['anniversary'] = 'Anniversary';
+$string['milestone'] = 'Important Milestone';

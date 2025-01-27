@@ -39,29 +39,6 @@ echo html_writer::start_div('row');
 // Left column - Top Posts
 echo html_writer::start_div('col-md-3');
 
-// İlk 5 kullanıcı
-echo html_writer::start_div('card mb-4');
-echo html_writer::start_div('card-header bg-primary text-white');
-echo html_writer::tag('h5', get_string('topusers', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::end_div();
-echo html_writer::start_div('card-body');
-echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
-$rank_count = 1;
-foreach (array_slice($rankings, 0, 5) as $rank) {
-    $user = $DB->get_record('user', array('id' => $rank['userid']));
-    echo html_writer::start_tag('li', array('class' => 'mb-2'));
-    echo html_writer::start_div('d-flex align-items-center');
-    echo html_writer::tag('span', '#' . $rank_count, array('class' => 'badge bg-primary me-2'));
-    echo html_writer::tag('span', fullname($user), array('class' => 'flex-grow-1'));
-    echo html_writer::tag('span', $rank['points'] . ' pts', array('class' => 'text-muted'));
-    echo html_writer::end_div();
-    echo html_writer::end_tag('li');
-    $rank_count++;
-}
-echo html_writer::end_tag('ul');
-echo html_writer::end_div();
-echo html_writer::end_div();
-
 // En çok beğeni alan gönderiler
 $most_liked_posts = local_recognition_get_most_liked_posts(3);
 echo html_writer::start_div('card mb-4');
@@ -112,45 +89,57 @@ echo html_writer::end_div();
 
 // En çok beğeni yapan kullanıcılar
 $most_liking_users = local_recognition_get_most_liking_users(3);
-echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card mt-4');
 echo html_writer::start_div('card-header bg-info text-white');
-echo html_writer::tag('h5', get_string('mostlikingusers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('h5', get_string('mostactivelikers', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
-echo html_writer::start_div('card-body');
-echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+
+echo html_writer::start_div('card-body p-0');
+echo html_writer::start_tag('ul', array('class' => 'list-group list-group-flush'));
+
 foreach ($most_liking_users as $user) {
-    echo html_writer::start_tag('li', array('class' => 'mb-2'));
-    echo html_writer::start_div('d-flex align-items-center');
-    echo html_writer::tag('i', '', array('class' => 'fas fa-thumbs-up text-info me-2'));
-    echo html_writer::tag('span', fullname((object)['firstname' => $user->firstname, 'lastname' => $user->lastname]), array('class' => 'flex-grow-1'));
-    echo html_writer::tag('span', $user->like_count, array('class' => 'badge bg-info'));
+    $userobj = $DB->get_record('user', array('id' => $user->id));
+    echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+    echo html_writer::start_div('d-flex align-items-center flex-grow-1');
+    echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+    echo html_writer::start_div();
+    echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
     echo html_writer::end_div();
+    echo html_writer::end_div();
+    echo html_writer::tag('span', $user->like_count, array('class' => 'badge bg-info'));
     echo html_writer::end_tag('li');
 }
+
 echo html_writer::end_tag('ul');
-echo html_writer::end_div();
-echo html_writer::end_div();
+echo html_writer::end_div(); // card-body
+echo html_writer::end_div(); // card
 
 // En çok yorum yapan kullanıcılar
 $most_commenting_users = local_recognition_get_most_commenting_users(3);
-echo html_writer::start_div('card mb-4');
+echo html_writer::start_div('card mt-4');
 echo html_writer::start_div('card-header bg-warning text-dark');
-echo html_writer::tag('h5', get_string('mostcommentingusers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::tag('h5', get_string('mostactivecommenters', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
-echo html_writer::start_div('card-body');
-echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+
+echo html_writer::start_div('card-body p-0');
+echo html_writer::start_tag('ul', array('class' => 'list-group list-group-flush'));
+
 foreach ($most_commenting_users as $user) {
-    echo html_writer::start_tag('li', array('class' => 'mb-2'));
-    echo html_writer::start_div('d-flex align-items-center');
-    echo html_writer::tag('i', '', array('class' => 'fas fa-comment text-warning me-2'));
-    echo html_writer::tag('span', fullname((object)['firstname' => $user->firstname, 'lastname' => $user->lastname]), array('class' => 'flex-grow-1'));
-    echo html_writer::tag('span', $user->comment_count, array('class' => 'badge bg-warning text-dark'));
+    $userobj = $DB->get_record('user', array('id' => $user->id));
+    echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+    echo html_writer::start_div('d-flex align-items-center flex-grow-1');
+    echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+    echo html_writer::start_div();
+    echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
     echo html_writer::end_div();
+    echo html_writer::end_div();
+    echo html_writer::tag('span', $user->comment_count, array('class' => 'badge bg-warning text-dark'));
     echo html_writer::end_tag('li');
 }
+
 echo html_writer::end_tag('ul');
-echo html_writer::end_div();
-echo html_writer::end_div();
+echo html_writer::end_div(); // card-body
+echo html_writer::end_div(); // card
 
 echo html_writer::end_div(); // col-md-3 end
 
@@ -300,8 +289,10 @@ foreach ($posts as $post) {
     echo html_writer::start_div('d-flex align-items-center');
     
     // User avatar
-    $initials = mb_substr($fromuser->firstname, 0, 1) . mb_substr($fromuser->lastname, 0, 1);
-    echo html_writer::div($initials, 'user-avatar');
+    global $OUTPUT, $DB;
+    $userobj = $DB->get_record('user', array('id' => $fromuser->id));
+    $userpicture = $OUTPUT->user_picture($userobj, array('size' => 40));
+    echo html_writer::div($userpicture, 'user-avatar');
     
     // User info and time
     echo html_writer::start_div('post-meta ms-2');
@@ -383,8 +374,10 @@ foreach ($posts as $post) {
             echo html_writer::start_div('comment mb-2', array('style' => '--comment-depth: ' . $depth));
             
             // User avatar
-            $initials = mb_substr($comment->firstname, 0, 1) . mb_substr($comment->lastname, 0, 1);
-            echo html_writer::div($initials, 'user-avatar');
+            global $OUTPUT, $DB;
+            $userobj = $DB->get_record('user', array('id' => $comment->id));
+            $userpicture = $OUTPUT->user_picture($userobj, array('size' => 40));
+            echo html_writer::div($userpicture, 'user-avatar');
             
             // Comment content
             echo html_writer::start_div('comment-content');
@@ -432,7 +425,9 @@ echo html_writer::start_div('card user-stats-card');
 // User header
 echo html_writer::start_div('card-header bg-primary text-white');
 echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::div(mb_substr($USER->firstname, 0, 1) . mb_substr($USER->lastname, 0, 1), 'user-avatar me-2');
+global $OUTPUT;
+$userpicture = $OUTPUT->user_picture($USER, array('size' => 40));
+echo html_writer::div($userpicture, 'user-avatar me-2');
 echo html_writer::start_div('user-info');
 echo html_writer::tag('h5', fullname($USER), array('class' => 'mb-0'));
 echo html_writer::tag('small', get_string('rank', 'local_recognition') . ': #' . $user_rank, array('class' => 'text-white-50'));
@@ -501,6 +496,90 @@ echo html_writer::end_tag('li');
 
 echo html_writer::end_tag('ul');
 echo html_writer::end_div(); // card-body
+
+// Top Users Section
+echo html_writer::start_div('card mt-4');
+echo html_writer::start_div('card-header bg-white d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-trophy text-warning me-2'));
+echo html_writer::tag('h5', get_string('leaderboard', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::end_div();
+
+echo html_writer::start_div('card-body');
+echo html_writer::tag('h6', get_string('top_users', 'local_recognition') . ' 10', array('class' => 'mb-4'));
+
+// Top 3 users with special layout
+echo html_writer::start_div('top-3-container mb-4');
+$top_3_users = array_slice($rankings, 0, 3);
+
+// First place (center)
+$first_user = core_user::get_user($top_3_users[0]['userid']);
+echo html_writer::start_div('top-1-wrapper text-center mb-3');
+echo html_writer::start_div('position-relative d-inline-block');
+global $OUTPUT;
+$userpicture = $OUTPUT->user_picture($first_user, array('size' => 60));
+echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-crown text-warning crown-icon')), 'user-avatar-large mb-2');
+echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold'));
+echo html_writer::tag('small', number_format($top_3_users[0]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// Second and Third place (side by side)
+echo html_writer::start_div('row align-items-start');
+
+// Second place (left)
+echo html_writer::start_div('col-6 text-center');
+$second_user = core_user::get_user($top_3_users[1]['userid']);
+echo html_writer::start_div('position-relative d-inline-block');
+$userpicture = $OUTPUT->user_picture($second_user, array('size' => 50));
+echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-secondary medal-icon')), 'user-avatar-medium mb-2');
+echo html_writer::tag('div', fullname($second_user), array('class' => 'fw-bold'));
+echo html_writer::tag('small', number_format($top_3_users[1]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// Third place (right)
+echo html_writer::start_div('col-6 text-center');
+$third_user = core_user::get_user($top_3_users[2]['userid']);
+echo html_writer::start_div('position-relative d-inline-block');
+$userpicture = $OUTPUT->user_picture($third_user, array('size' => 50));
+echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-bronze medal-icon')), 'user-avatar-medium mb-2');
+echo html_writer::tag('div', fullname($third_user), array('class' => 'fw-bold'));
+echo html_writer::tag('small', number_format($top_3_users[2]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+echo html_writer::end_div(); // end row
+echo html_writer::end_div(); // end top-3-container
+
+// Remaining top 10 users
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+$remaining_users = array_slice($rankings, 3, 7);
+foreach ($remaining_users as $index => $rank) {
+    $rank_count = $index + 4;
+    $user = core_user::get_user($rank['userid']);
+    
+    echo html_writer::start_tag('li', array('class' => 'mb-3'));
+    echo html_writer::start_div('d-flex align-items-center position-relative');
+    
+    // User Avatar
+    $userpicture = $OUTPUT->user_picture($user, array('size' => 40));
+    echo html_writer::div($userpicture, 'user-avatar me-2');
+    
+    // User Info
+    echo html_writer::start_div('flex-grow-1');
+    echo html_writer::tag('div', fullname($user), array('class' => 'fw-bold'));
+    echo html_writer::tag('small', number_format($rank['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
+    echo html_writer::end_div();
+    
+    // Rank Badge
+    echo html_writer::tag('span', '#' . $rank_count, array('class' => 'position-absolute end-0 badge bg-light text-dark border'));
+    
+    echo html_writer::end_div();
+    echo html_writer::end_tag('li');
+}
+echo html_writer::end_tag('ul');
+echo html_writer::end_div(); // card-body
+echo html_writer::end_div(); // card
 
 echo html_writer::end_div(); // user-stats-card
 echo html_writer::end_div(); // col-md-3
