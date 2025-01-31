@@ -78,6 +78,12 @@ $string['comments'] = 'comments';
 $string['mostlikingusers'] = 'Most Active Likers';
 $string['mostcommentingusers'] = 'Most Active Commenters';
 
+// Activity stats
+$string['mostactivelikers'] = 'Most Active Likers';
+$string['mostactivecommenters'] = 'Most Active Commenters';
+$string['mostactivelikers_title'] = 'Most Active Likers ({$a})';
+$string['mostactivecommenters_title'] = 'Most Active Commenters ({$a})';
+
 // Time strings
 $string['justnow'] = 'Just now';
 $string['minutesago'] = '{$a} minutes ago';
@@ -131,3 +137,8 @@ $string['leadership'] = 'Leadership';
 $string['customerservice'] = 'Customer Service';
 $string['anniversary'] = 'Anniversary';
 $string['milestone'] = 'Important Milestone';
+
+// Top users and stats
+$string['top_users'] = 'Top';
+$string['top_users_desc'] = 'Users with the highest points';
+$string['top_users_title'] = 'Top {$a} Users';

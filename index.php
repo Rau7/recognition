@@ -42,7 +42,7 @@ echo html_writer::start_div('col-md-3');
 // En çok beğeni alan gönderiler
 $most_liked_posts = local_recognition_get_most_liked_posts(3);
 echo html_writer::start_div('card mb-4');
-echo html_writer::start_div('card-header bg-danger text-white');
+echo html_writer::start_div('card-header text-white');
 echo html_writer::tag('h5', get_string('mostlikedposts', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
 echo html_writer::start_div('card-body');
@@ -66,7 +66,7 @@ echo html_writer::end_div();
 // En çok yorum alan gönderiler
 $most_commented_posts = local_recognition_get_most_commented_posts(3);
 echo html_writer::start_div('card mb-4');
-echo html_writer::start_div('card-header bg-success text-white');
+echo html_writer::start_div('card-header text-white');
 echo html_writer::tag('h5', get_string('mostcommentedposts', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
 echo html_writer::start_div('card-body');
@@ -90,8 +90,8 @@ echo html_writer::end_div();
 // En çok beğeni yapan kullanıcılar
 $most_liking_users = local_recognition_get_most_liking_users(3);
 echo html_writer::start_div('card mt-4');
-echo html_writer::start_div('card-header bg-info text-white');
-echo html_writer::tag('h5', get_string('mostactivelikers', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::start_div('card-header text-white');
+echo html_writer::tag('h5', get_string('mostactivelikers_title', 'local_recognition', count($most_liking_users)), array('class' => 'mb-0'));
 echo html_writer::end_div();
 
 echo html_writer::start_div('card-body p-0');
@@ -117,8 +117,8 @@ echo html_writer::end_div(); // card
 // En çok yorum yapan kullanıcılar
 $most_commenting_users = local_recognition_get_most_commenting_users(3);
 echo html_writer::start_div('card mt-4');
-echo html_writer::start_div('card-header bg-warning text-dark');
-echo html_writer::tag('h5', get_string('mostactivecommenters', 'local_recognition'), array('class' => 'mb-0'));
+echo html_writer::start_div('card-header text-dark');
+echo html_writer::tag('h5', get_string('mostactivecommenters_title', 'local_recognition', count($most_commenting_users)), array('class' => 'mb-0'));
 echo html_writer::end_div();
 
 echo html_writer::start_div('card-body p-0');
@@ -284,6 +284,24 @@ foreach ($posts as $post) {
     
     echo html_writer::start_div('card mb-4 recognition-post');
     
+    
+    
+    // Post content
+    echo html_writer::start_div('card-body post-content');
+    echo html_writer::div($post->message, 'post-message');
+    
+    // Post image if exists
+    if (!empty($post->attachment)) {
+        echo html_writer::start_div('post-image-container mt-3');
+        echo html_writer::empty_tag('img', array(
+            'src' => $post->attachment,
+            'alt' => 'Post image',
+            'class' => 'post-image img-fluid'
+        ));
+        echo html_writer::end_div();
+    }
+    echo html_writer::end_div(); // card-body
+
     // Post header
     echo html_writer::start_div('card-header post-header');
     echo html_writer::start_div('d-flex align-items-center');
@@ -310,22 +328,6 @@ foreach ($posts as $post) {
     
     echo html_writer::end_div(); // d-flex
     echo html_writer::end_div(); // card-header
-    
-    // Post content
-    echo html_writer::start_div('card-body post-content');
-    echo html_writer::div($post->message, 'post-message');
-    
-    // Post image if exists
-    if (!empty($post->attachment)) {
-        echo html_writer::start_div('post-image-container mt-3');
-        echo html_writer::empty_tag('img', array(
-            'src' => $post->attachment,
-            'alt' => 'Post image',
-            'class' => 'post-image img-fluid'
-        ));
-        echo html_writer::end_div();
-    }
-    echo html_writer::end_div(); // card-body
     
     // Post footer
     echo html_writer::start_div('card-footer post-footer');
@@ -437,7 +439,7 @@ echo html_writer::end_div();
 
 // Stats list
 echo html_writer::start_div('card-body');
-echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
+echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0 stats-list-grid'));
 
 // Points
 echo html_writer::start_tag('li', array('class' => 'mb-3'));
@@ -505,7 +507,7 @@ echo html_writer::tag('h5', get_string('leaderboard', 'local_recognition'), arra
 echo html_writer::end_div();
 
 echo html_writer::start_div('card-body');
-echo html_writer::tag('h6', get_string('top_users', 'local_recognition') . ' 10', array('class' => 'mb-4'));
+echo html_writer::tag('h6', get_string('top_users_title', 'local_recognition', 10), array('class' => 'mb-4'));
 
 // Top 3 users with special layout
 echo html_writer::start_div('top-3-container mb-4');
@@ -572,7 +574,7 @@ foreach ($remaining_users as $index => $rank) {
     echo html_writer::end_div();
     
     // Rank Badge
-    echo html_writer::tag('span', '#' . $rank_count, array('class' => 'position-absolute end-0 badge bg-light text-dark border'));
+    echo html_writer::tag('span', '#' . $rank_count, array('class' => 'end-0 badge bg-light text-dark border'));
     
     echo html_writer::end_div();
     echo html_writer::end_tag('li');
