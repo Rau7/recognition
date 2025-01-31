@@ -81,8 +81,8 @@ $string['mostcommentingusers'] = 'Most Active Commenters';
 // Activity stats
 $string['mostactivelikers'] = 'Most Active Likers';
 $string['mostactivecommenters'] = 'Most Active Commenters';
-$string['mostactivelikers_title'] = 'Most Active Likers ({$a})';
-$string['mostactivecommenters_title'] = 'Most Active Commenters ({$a})';
+$string['mostactivelikers_title'] = 'Most Active Likers';
+$string['mostactivecommenters_title'] = 'Most Active Commenters';
 
 // Time strings
 $string['justnow'] = 'Just now';
