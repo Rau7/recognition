@@ -516,23 +516,22 @@ echo html_writer::start_div('card-body');
 echo html_writer::start_div('top-3-container mb-4');
 $top_3_users = array_slice($rankings, 0, 3);
 
-// First place (center)
+echo html_writer::start_div('row align-items-center');
+
+// First place
+echo html_writer::start_div('col-md-4 text-center');
 $first_user = core_user::get_user($top_3_users[0]['userid']);
-echo html_writer::start_div('top-1-wrapper text-center mb-3');
 echo html_writer::start_div('position-relative d-inline-block');
 global $OUTPUT;
-$userpicture = $OUTPUT->user_picture($first_user, array('size' => 60));
+$userpicture = $OUTPUT->user_picture($first_user, array('size' => 65));
 echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-crown text-warning crown-icon')), 'user-avatar-large mb-2');
-echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold'));
+echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold fs-5'));
 echo html_writer::tag('small', number_format($top_3_users[0]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
 echo html_writer::end_div();
 echo html_writer::end_div();
 
-// Second and Third place (side by side)
-echo html_writer::start_div('row align-items-start');
-
-// Second place (left)
-echo html_writer::start_div('col-6 text-center');
+// Second place
+echo html_writer::start_div('col-md-4 text-center');
 $second_user = core_user::get_user($top_3_users[1]['userid']);
 echo html_writer::start_div('position-relative d-inline-block');
 $userpicture = $OUTPUT->user_picture($second_user, array('size' => 50));
@@ -542,8 +541,8 @@ echo html_writer::tag('small', number_format($top_3_users[1]['points']) . ' ' . 
 echo html_writer::end_div();
 echo html_writer::end_div();
 
-// Third place (right)
-echo html_writer::start_div('col-6 text-center');
+// Third place
+echo html_writer::start_div('col-md-4 text-center');
 $third_user = core_user::get_user($top_3_users[2]['userid']);
 echo html_writer::start_div('position-relative d-inline-block');
 $userpicture = $OUTPUT->user_picture($third_user, array('size' => 50));
