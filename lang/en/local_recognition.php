@@ -142,3 +142,13 @@ $string['milestone'] = 'Important Milestone';
 $string['top_users'] = 'Top';
 $string['top_users_desc'] = 'Users with the highest points';
 $string['top_users_title'] = 'Top {$a} Users';
+
+// New strings added
+$string['downloadleaderboard'] = 'Download Leaderboard (CSV)';
+$string['fullname'] = 'Full Name';
+$string['postcount'] = 'Posts';
+$string['commentcount'] = 'Comments Made';
+$string['likesgiven'] = 'Likes Given';
+$string['likesreceived'] = 'Likes Received';
+$string['commentsreceived'] = 'Comments Received';
+$string['totalpoints'] = 'Total Points';

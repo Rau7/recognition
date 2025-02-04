@@ -49,15 +49,19 @@ echo html_writer::end_div();
 echo html_writer::start_div('card-body');
 echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
 foreach ($most_liked_posts as $post) {
-    echo html_writer::start_tag('li', array('class' => 'mb-2'));
-    echo html_writer::start_div('d-flex align-items-center');
-    echo html_writer::start_div('flex-grow-1');
-    echo html_writer::tag('div', fullname((object)['firstname' => $post->firstname, 'lastname' => $post->lastname]));
-    echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
-    echo html_writer::end_div();
-    echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
-    echo html_writer::end_div();
-    echo html_writer::end_tag('li');
+    $userobj = $DB->get_record('user', array('id' => $post->fromid));
+    if ($userobj) {
+        echo html_writer::start_tag('li', array('class' => 'mb-2'));
+        echo html_writer::start_div('d-flex align-items-center');
+        echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+        echo html_writer::start_div('flex-grow-1');
+        echo html_writer::tag('div', fullname($userobj));
+        echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+        echo html_writer::end_div();
+        echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
+        echo html_writer::end_div();
+        echo html_writer::end_tag('li');
+    }
 }
 echo html_writer::end_tag('ul');
 echo html_writer::end_div();
@@ -73,16 +77,19 @@ echo html_writer::end_div();
 echo html_writer::start_div('card-body');
 echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
 foreach ($most_commented_posts as $post) {
-    echo html_writer::start_tag('li', array('class' => 'mb-2'));
-    echo html_writer::start_div('d-flex align-items-center');
-    
-    echo html_writer::start_div('flex-grow-1');
-    echo html_writer::tag('div', fullname((object)['firstname' => $post->firstname, 'lastname' => $post->lastname]));
-    echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
-    echo html_writer::end_div();
-    echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
-    echo html_writer::end_div();
-    echo html_writer::end_tag('li');
+    $userobj = $DB->get_record('user', array('id' => $post->fromid));
+    if ($userobj) {
+        echo html_writer::start_tag('li', array('class' => 'mb-2'));
+        echo html_writer::start_div('d-flex align-items-center');
+        echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+        echo html_writer::start_div('flex-grow-1');
+        echo html_writer::tag('div', fullname($userobj));
+        echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+        echo html_writer::end_div();
+        echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
+        echo html_writer::end_div();
+        echo html_writer::end_tag('li');
+    }
 }
 echo html_writer::end_tag('ul');
 echo html_writer::end_div();
@@ -91,7 +98,8 @@ echo html_writer::end_div();
 // En çok beğeni yapan kullanıcılar
 $most_liking_users = local_recognition_get_most_liking_users(3);
 echo html_writer::start_div('card mt-4');
-echo html_writer::start_div('card-header text-white');
+echo html_writer::start_div('card-header text-white d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-thumbs-up text-info me-2'));
 echo html_writer::tag('h5', get_string('mostactivelikers_title', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
 
@@ -118,7 +126,8 @@ echo html_writer::end_div(); // card
 // En çok yorum yapan kullanıcılar
 $most_commenting_users = local_recognition_get_most_commenting_users(3);
 echo html_writer::start_div('card mt-4');
-echo html_writer::start_div('card-header text-dark');
+echo html_writer::start_div('card-header text-white d-flex align-items-center');
+echo html_writer::tag('i', '', array('class' => 'fas fa-comments text-warning me-2'));
 echo html_writer::tag('h5', get_string('mostactivecommenters_title', 'local_recognition'), array('class' => 'mb-0'));
 echo html_writer::end_div();
 
@@ -285,10 +294,6 @@ foreach ($posts as $post) {
     
     echo html_writer::start_div('card mb-4 recognition-post');
     
-    
-    
-    
-
     // Post header
     echo html_writer::start_div('card-header post-header');
     echo html_writer::start_div('d-flex align-items-center');
@@ -305,8 +310,6 @@ foreach ($posts as $post) {
     $timeformat = get_string('strftimerecentfull', 'core_langconfig');
     echo html_writer::div(userdate($post->timecreated, $timeformat), 'post-time text-muted');
     echo html_writer::end_div();
-
-    
 
     // Badge if exists
     if (!empty($post->badgename)) {
@@ -554,6 +557,20 @@ echo html_writer::end_div();
 
 echo html_writer::end_div(); // end row
 echo html_writer::end_div(); // end top-3-container
+
+// CSV indirme butonu (sadece admin ve yöneticiler için)
+if (has_capability('moodle/site:config', context_system::instance())) {
+    echo html_writer::start_div('text-center mt-3');
+    echo html_writer::start_tag('a', array(
+        'href' => new moodle_url('/local/recognition/download_leaderboard.php'),
+        'class' => 'btn btn-secondary',
+        'target' => '_blank'
+    ));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-download me-2'));
+    echo get_string('downloadleaderboard', 'local_recognition');
+    echo html_writer::end_tag('a');
+    echo html_writer::end_div();
+}
 
 // Remaining top 10 users
 echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
