@@ -295,31 +295,48 @@ foreach ($posts as $post) {
     echo html_writer::start_div('card mb-4 recognition-post');
     
     // Post header
-    echo html_writer::start_div('card-header post-header');
+    echo html_writer::start_div('card-header post-header position-relative');
     echo html_writer::start_div('d-flex align-items-center');
     
-    // User avatar
-    global $OUTPUT, $DB;
-    $userobj = $DB->get_record('user', array('id' => $fromuser->id));
-    $userpicture = $OUTPUT->user_picture($userobj, array('size' => 40));
-    echo html_writer::div($userpicture, 'user-avatar');
-    
-    // User info and time
-    echo html_writer::start_div('post-meta ms-2');
-    echo html_writer::tag('h6', fullname($fromuser), array('class' => 'mb-0 post-author'));
-    $timeformat = get_string('strftimerecentfull', 'core_langconfig');
+    // User avatar and name
+    echo html_writer::div($OUTPUT->user_picture($fromuser, array('size' => 35)), 'user-avatar me-2');
+    echo html_writer::start_div();
+    echo html_writer::tag('div', fullname($fromuser), array('class' => 'fw-bold'));
     echo html_writer::div(userdate($post->timecreated, $timeformat), 'post-time text-muted');
+    echo html_writer::end_div();
+
+    // Düzenleme ve silme ikonları (sadece post sahibi veya admin/yönetici görebilir)
+    if ($USER->id == $post->fromid || has_capability('moodle/site:config', context_system::instance())) {
+        echo html_writer::start_div('post-actions');
+        echo html_writer::start_tag('a', array(
+            'href' => '#',
+            'class' => 'post-action-btn edit-btn me-2',
+            'title' => get_string('edit')
+        ));
+        echo html_writer::tag('i', '', array('class' => 'fas fa-edit'));
+        echo html_writer::end_tag('a');
+
+        echo html_writer::start_tag('a', array(
+            'href' => '#',
+            'class' => 'post-action-btn delete-btn',
+            'title' => get_string('delete')
+        ));
+        echo html_writer::tag('i', '', array('class' => 'fas fa-trash'));
+        echo html_writer::end_tag('a');
+        echo html_writer::end_div();
+    }
+
     echo html_writer::end_div();
 
     // Badge if exists
     if (!empty($post->badgename)) {
         echo html_writer::start_div('ms-auto badge-container');
-        echo html_writer::div($post->badgename, 'recognition-badge');
+        echo html_writer::tag('i', '', array('class' => $post->badgeicon));
+        echo html_writer::tag('span', $post->badgename, array('class' => 'badge-name'));
         echo html_writer::end_div();
     }
-    
-    echo html_writer::end_div(); // d-flex
-    echo html_writer::end_div(); // card-header
+
+    echo html_writer::end_div(); // end card-header
     // Post content
     echo html_writer::start_div('card-body post-content');
     echo html_writer::div($post->message, 'post-message');
@@ -374,28 +391,48 @@ foreach ($posts as $post) {
     );
 
     if ($comments) {
-        echo html_writer::start_div('comments-list');
+        echo html_writer::start_div('comments-section mt-3');
         foreach ($comments as $comment) {
-            // Hesapla yorum derinliğini (varsayılan 0)
-            $depth = isset($comment->parent_id) ? 1 : 0;
+            $commentuser = core_user::get_user($comment->userid);
             
-            echo html_writer::start_div('comment mb-2', array('style' => '--comment-depth: ' . $depth));
+            echo html_writer::start_div('comment-item position-relative mb-2');
+            echo html_writer::start_div('d-flex align-items-start');
             
-            // User avatar
-            global $OUTPUT, $DB;
-            $userobj = $DB->get_record('user', array('id' => $comment->id));
-            $userpicture = $OUTPUT->user_picture($userobj, array('size' => 40));
-            echo html_writer::div($userpicture, 'user-avatar');
+            // Comment user avatar
+            echo html_writer::div($OUTPUT->user_picture($commentuser, array('size' => 30)), 'comment-avatar me-2');
             
             // Comment content
-            echo html_writer::start_div('comment-content');
-            echo html_writer::tag('strong', fullname($comment), array('class' => 'mr-2'));
-            echo html_writer::tag('span', $comment->content);
+            echo html_writer::start_div('comment-content flex-grow-1');
+            echo html_writer::tag('div', fullname($commentuser), array('class' => 'fw-bold'));
+            echo html_writer::div($comment->content, 'comment-text');
+            echo html_writer::div(userdate($comment->timecreated, get_string('strftimerecentfull', 'core_langconfig')), 'comment-time text-muted small');
             echo html_writer::end_div();
-            
-            echo html_writer::end_div(); // comment
+
+            // Düzenleme ve silme ikonları (sadece yorum sahibi veya admin/yönetici görebilir)
+            if ($USER->id == $comment->userid || has_capability('moodle/site:config', context_system::instance())) {
+                echo html_writer::start_div('comment-actions');
+                echo html_writer::start_tag('a', array(
+                    'href' => '#',
+                    'class' => 'comment-action-btn edit-btn me-2',
+                    'title' => get_string('edit')
+                ));
+                echo html_writer::tag('i', '', array('class' => 'fas fa-edit'));
+                echo html_writer::end_tag('a');
+
+                echo html_writer::start_tag('a', array(
+                    'href' => '#',
+                    'class' => 'comment-action-btn delete-btn',
+                    'title' => get_string('delete')
+                ));
+                echo html_writer::tag('i', '', array('class' => 'fas fa-trash'));
+                echo html_writer::end_tag('a');
+                echo html_writer::end_div();
+            }
+
+            echo html_writer::end_div(); // d-flex
+            echo html_writer::end_div(); // comment-item
         }
-        echo html_writer::end_div(); // comments-list
+        echo html_writer::end_div(); // comments-section
     }
 
     // Comment form
@@ -540,7 +577,7 @@ echo html_writer::start_div('position-relative d-inline-block');
 $userpicture = $OUTPUT->user_picture($second_user, array('size' => 50));
 echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-secondary medal-icon')), 'user-avatar-medium mb-2');
 echo html_writer::tag('div', fullname($second_user), array('class' => 'fw-bold'));
-echo html_writer::tag('small', number_format($top_3_users[1]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+echo html_writer::tag('small', number_format($top_3_users[1]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
 echo html_writer::end_div();
 echo html_writer::end_div();
 
@@ -551,7 +588,7 @@ echo html_writer::start_div('position-relative d-inline-block');
 $userpicture = $OUTPUT->user_picture($third_user, array('size' => 50));
 echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-bronze medal-icon')), 'user-avatar-medium mb-2');
 echo html_writer::tag('div', fullname($third_user), array('class' => 'fw-bold'));
-echo html_writer::tag('small', number_format($top_3_users[2]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+echo html_writer::tag('small', number_format($top_3_users[2]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
 echo html_writer::end_div();
 echo html_writer::end_div();
 

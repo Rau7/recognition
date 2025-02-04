@@ -306,6 +306,43 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding: 1rem;
   border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.post-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  background: transparent;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+.recognition-post:hover .post-actions {
+  display: flex;
+  align-items: center;
+}
+
+.post-action-btn {
+  color: #6c757d;
+  text-decoration: none;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.post-action-btn:hover {
+  background-color: transparent;
+}
+
+.edit-btn:hover {
+  color: #0d6efd;
+}
+
+.delete-btn:hover {
+  color: #dc3545;
 }
 
 .user-avatar {
@@ -416,6 +453,71 @@
   border-radius: 0 20px 20px 0;
 }
 
+/* Comment styling */
+.comment-item {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.comment-avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-text {
+  margin: 0.25rem 0;
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Comment actions styling */
+.comment-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: none;
+  background: transparent;
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+.comment-item:hover .comment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.comment-action-btn {
+  color: #6c757d;
+  text-decoration: none;
+  padding: 3px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.comment-action-btn:hover {
+  background-color: #fff;
+}
+
+.comment-action-btn.edit-btn:hover {
+  color: #0d6efd;
+}
+
+.comment-action-btn.delete-btn:hover {
+  color: #dc3545;
+}
+
 /* File Upload Styling */
 .file-upload-wrapper {
   position: relative;
@@ -486,10 +588,6 @@
   border: none;
   padding: 0.75rem;
   font-size: 0.95rem;
-}
-
-.recognition-comment-form .form-control {
-  height: 100%;
 }
 
 .recognition-comment-form input:focus {
@@ -624,7 +722,7 @@
   width: 1rem;
   height: 1px;
   background: var(--primary);
-  opacity: 0.2;
+  opacity: 0;
   transform-origin: left;
   transform: scaleX(0);
   transition: transform 0.2s ease;
@@ -963,4 +1061,9 @@
   background: #f8f9fa;
   border-radius: 6px;
   padding: 0.75rem;
+}
+
+#region-main-box {
+  padding: 0;
+  margin: 0;
 }
