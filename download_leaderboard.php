@@ -11,36 +11,30 @@ if (!has_capability('moodle/site:config', context_system::instance())) {
     throw new moodle_exception('nopermissions', 'error', '', 'download leaderboard');
 }
 
-// Debugging
-debugging('Starting leaderboard download process', DEBUG_DEVELOPER);
-
 try {
-    // Önce tablo isimlerini kontrol edelim
-    $tables = $DB->get_tables();
-    debugging('Available tables: ' . print_r($tables, true), DEBUG_DEVELOPER);
-
-    // Tablo yapısını kontrol edelim
-    $records_table = $DB->get_columns('local_recognition_records');
-    debugging('Recognition records table structure: ' . print_r($records_table, true), DEBUG_DEVELOPER);
-    
-    $reactions_table = $DB->get_columns('local_recognition_reactions');
-    debugging('Recognition reactions table structure: ' . print_r($reactions_table, true), DEBUG_DEVELOPER);
-
-    // Basit bir sorgu ile test edelim
-    $test_sql = "SELECT * FROM {local_recognition_records} LIMIT 1";
-    $test_record = $DB->get_record_sql($test_sql);
-    debugging('Test record: ' . print_r($test_record, true), DEBUG_DEVELOPER);
-
-    // Ana sorguyu basitleştirelim
+    // Ana sorgu - tüm istatistikleri tek sorguda al
     $sql = "
         SELECT u.id, u.firstname, u.lastname,
-               0 as post_count,
-               0 as comment_count,
-               0 as likes_given,
-               0 as likes_received,
-               0 as comments_received
+               (SELECT COUNT(*) 
+                FROM {local_recognition_records} 
+                WHERE fromid = u.id) as post_count,
+               (SELECT COUNT(*) 
+                FROM {local_recognition_reactions} 
+                WHERE userid = u.id AND type = 'comment') as comment_count,
+               (SELECT COUNT(*) 
+                FROM {local_recognition_reactions} 
+                WHERE userid = u.id AND type = 'like') as likes_given,
+               (SELECT COUNT(*) 
+                FROM {local_recognition_records} r
+                JOIN {local_recognition_reactions} lr ON lr.recordid = r.id 
+                WHERE lr.type = 'like' AND r.fromid = u.id) as likes_received,
+               (SELECT COUNT(*) 
+                FROM {local_recognition_records} r
+                JOIN {local_recognition_reactions} lr ON lr.recordid = r.id 
+                WHERE lr.type = 'comment' AND r.fromid = u.id) as comments_received
         FROM {user} u
         WHERE u.deleted = 0 AND u.id > 1
+        ORDER BY post_count DESC, likes_received DESC
         LIMIT 10";
 
     debugging('Executing SQL query: ' . $sql, DEBUG_DEVELOPER);
@@ -69,15 +63,21 @@ try {
     // CSV verilerini hazırla
     $data = array();
     foreach ($users as $user) {
-        // Test için sabit değerler kullanalım
+        // Toplam puanı hesapla (lib.php'deki sabitler kullanılarak)
+        $total_points = ($user->post_count * RECOGNITION_POINTS_POST) + 
+                       ($user->comment_count * RECOGNITION_POINTS_COMMENT_GIVEN) + 
+                       ($user->likes_given * RECOGNITION_POINTS_LIKE_GIVEN) + 
+                       ($user->likes_received * RECOGNITION_POINTS_LIKE_RECEIVED) + 
+                       ($user->comments_received * RECOGNITION_POINTS_COMMENT_RECEIVED);
+
         $data[] = array(
             fullname($user),
-            0, // post_count
-            0, // comment_count
-            0, // likes_given
-            0, // likes_received
-            0, // comments_received
-            0  // total_points
+            (int)$user->post_count,
+            (int)$user->comment_count,
+            (int)$user->likes_given,
+            (int)$user->likes_received,
+            (int)$user->comments_received,
+            (int)$total_points
         );
     }
 
