@@ -1067,3 +1067,142 @@
   padding: 0;
   margin: 0;
 }
+
+/* User Stats Cards */
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-content {
+  min-height: 60px;
+}
+
+.stat-icon-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-icon.purple {
+  color: #8b5cf6;
+}
+
+.stat-icon.indigo {
+  color: #6366f1;
+}
+
+.stat-icon.violet {
+  color: #7c3aed;
+}
+
+.stat-title {
+  font-size: 0.875rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.stat-numbers {
+  margin-left: auto;
+}
+
+.stat-number {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.received-stats,
+.sent-stats {
+  min-width: 70px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-icon {
+    font-size: 1.25rem;
+  }
+
+  .stat-number {
+    font-size: 1rem;
+  }
+
+  .received-stats,
+  .sent-stats {
+    min-width: 60px;
+  }
+}
+
+/* Post Reactions Styling */
+.reaction-btn {
+  color: #6c757d;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.reaction-btn:hover {
+  text-decoration: none;
+}
+
+.reaction-btn i {
+  transition: transform 0.2s ease;
+}
+
+.reaction-btn:hover i {
+  transform: scale(1.2);
+}
+
+.thanks-btn:hover {
+  color: #6366f1;
+}
+
+.celebration-btn:hover {
+  color: #7c3aed;
+}
+
+.reaction-count {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Active state for reactions */
+.reaction-btn.active {
+  font-weight: 500;
+}
+
+.thanks-btn.active {
+  color: #6366f1;
+}
+
+.celebration-btn.active {
+  color: #7c3aed;
+}
+
+.user-stats-container .user-info h5 {
+  color: #fff !important;
+}

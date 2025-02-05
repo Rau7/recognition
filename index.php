@@ -356,6 +356,9 @@ foreach ($posts as $post) {
     echo html_writer::start_div('card-footer post-footer');
     echo html_writer::start_div('d-flex align-items-center');
     
+    // Post interactions
+    echo html_writer::start_div('post-interactions mt-3 d-flex align-items-center');
+    
     // Like button
     echo html_writer::start_tag('button', array(
         'class' => 'btn btn-link recognition-like-btn p-0 me-4' . ($post->isliked ? ' liked' : ''),
@@ -364,7 +367,25 @@ foreach ($posts as $post) {
     echo html_writer::tag('i', '', array('class' => 'fa fa-heart me-1'));
     echo html_writer::span($post->likes, 'likes-count');
     echo html_writer::end_tag('button');
-    
+
+    // Thanks button
+    echo html_writer::start_tag('button', array(
+        'class' => 'btn btn-link reaction-btn thanks-btn p-0 me-4',
+        'title' => 'Thanks'
+    ));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-praying-hands me-1'));
+    echo html_writer::tag('span', '0', array('class' => 'reaction-count'));
+    echo html_writer::end_tag('button');
+
+    // Celebration button
+    echo html_writer::start_tag('button', array(
+        'class' => 'btn btn-link reaction-btn celebration-btn p-0 me-4',
+        'title' => 'Celebration'
+    ));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-star me-1'));
+    echo html_writer::tag('span', '0', array('class' => 'reaction-count'));
+    echo html_writer::end_tag('button');
+
     // Comment button
     echo html_writer::start_tag('button', array(
         'class' => 'btn btn-link recognition-comments-btn p-0',
@@ -374,6 +395,8 @@ foreach ($posts as $post) {
     echo html_writer::span($post->comments, 'comments-count');
     echo html_writer::end_tag('button');
     
+    echo html_writer::end_div(); // post-interactions
+
     echo html_writer::end_div(); // d-flex
     echo html_writer::end_div(); // card-footer
     
@@ -465,7 +488,7 @@ echo html_writer::end_div(); // col-md-6
 
 // Right column - User Stats
 echo html_writer::start_div('col-md-3');
-echo html_writer::start_div('card user-stats-card');
+echo html_writer::start_div('user-stats-container mt-4');
 
 // User header
 echo html_writer::start_div('card-header bg-primary text-white');
@@ -480,68 +503,59 @@ echo html_writer::end_div();
 echo html_writer::end_div();
 echo html_writer::end_div();
 
-// Stats list
-echo html_writer::start_div('card-body');
-echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0 stats-list-grid'));
+// Stats cards
+$stats_data = array(
+    array(
+        'icon' => 'fas fa-hand-holding-heart',
+        'title' => 'Appreciation',
+        'received' => $user_stats['likes_received'],
+        'sent' => $user_stats['likes_given'],
+        'color' => 'purple'
+    ),
+    array(
+        'icon' => 'fas fa-praying-hands',
+        'title' => 'Thanks',
+        'received' => 15,
+        'sent' => 20,
+        'color' => 'indigo'
+    ),
+    array(
+        'icon' => 'fas fa-star',
+        'title' => 'Celebration',
+        'received' => 5,
+        'sent' => 10,
+        'color' => 'violet'
+    )
+);
 
-// Points
-echo html_writer::start_tag('li', array('class' => 'mb-3'));
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', array('class' => 'fas fa-star text-warning me-2'));
-echo html_writer::start_div('flex-grow-1');
-echo html_writer::tag('h6', get_string('points', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::tag('small', number_format($user_stats['points']), array('class' => 'text-muted'));
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_tag('li');
+foreach ($stats_data as $stat) {
+    echo html_writer::start_div('stat-card mb-3');
+    echo html_writer::start_div('stat-card-content d-flex align-items-center');
+    
+    // İkon ve başlık
+    echo html_writer::start_div('stat-icon-section me-3');
+    echo html_writer::tag('i', '', array('class' => $stat['icon'] . ' stat-icon ' . $stat['color']));
+    echo html_writer::tag('div', $stat['title'], array('class' => 'stat-title'));
+    echo html_writer::end_div();
 
-// Posts
-echo html_writer::start_tag('li', array('class' => 'mb-3'));
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', array('class' => 'fas fa-file-alt text-primary me-2'));
-echo html_writer::start_div('flex-grow-1');
-echo html_writer::tag('h6', get_string('posts', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::tag('small', number_format($user_stats['posts']), array('class' => 'text-muted'));
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_tag('li');
+    // Received ve Sent sayıları
+    echo html_writer::start_div('stat-numbers d-flex align-items-center ms-auto');
+    echo html_writer::start_div('received-stats text-center me-4');
+    echo html_writer::tag('div', $stat['received'], array('class' => 'stat-number'));
+    echo html_writer::tag('div', 'Received', array('class' => 'stat-label'));
+    echo html_writer::end_div();
 
-// Comments
-echo html_writer::start_tag('li', array('class' => 'mb-3'));
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', array('class' => 'fas fa-comments text-success me-2'));
-echo html_writer::start_div('flex-grow-1');
-echo html_writer::tag('h6', get_string('comments', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::tag('small', number_format($user_stats['comments_given']), array('class' => 'text-muted'));
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_tag('li');
+    echo html_writer::start_div('sent-stats text-center');
+    echo html_writer::tag('div', $stat['sent'], array('class' => 'stat-number'));
+    echo html_writer::tag('div', 'Sent', array('class' => 'stat-label'));
+    echo html_writer::end_div();
+    echo html_writer::end_div();
 
-// Likes Given
-echo html_writer::start_tag('li', array('class' => 'mb-3'));
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', array('class' => 'fas fa-heart text-danger me-2'));
-echo html_writer::start_div('flex-grow-1');
-echo html_writer::tag('h6', get_string('likesgiven', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::tag('small', number_format($user_stats['likes_given']), array('class' => 'text-muted'));
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_tag('li');
+    echo html_writer::end_div(); // stat-card-content
+    echo html_writer::end_div(); // stat-card
+}
 
-// Likes Received
-echo html_writer::start_tag('li', array('class' => 'mb-3'));
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', array('class' => 'fas fa-heart text-danger me-2'));
-echo html_writer::start_div('flex-grow-1');
-echo html_writer::tag('h6', get_string('likesreceived', 'local_recognition'), array('class' => 'mb-0'));
-echo html_writer::tag('small', number_format($user_stats['likes_received']), array('class' => 'text-muted'));
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_tag('li');
-
-echo html_writer::end_tag('ul');
-echo html_writer::end_div(); // card-body
-echo html_writer::end_div(); // card user-stats-card
+echo html_writer::end_div(); // user-stats-container
 
 // Top Users Section
 echo html_writer::start_div('card mt-4');
