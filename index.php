@@ -20,7 +20,16 @@ $PAGE->requires->css('/local/recognition/styles.css');
 echo $OUTPUT->header();
 
 // Get user statistics
-$user_stats = local_recognition_calculate_points($USER->id);
+$user_stats = array(
+    'likes_received' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'like' AND recordid IN (SELECT id FROM {local_recognition_records} WHERE fromid = ?)", array($USER->id)),
+    'likes_given' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'like' AND userid = ?", array($USER->id)),
+    'thanks_received' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'thanks' AND recordid IN (SELECT id FROM {local_recognition_records} WHERE fromid = ?)", array($USER->id)),
+    'thanks_given' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'thanks' AND userid = ?", array($USER->id)),
+    'celebration_received' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'celebration' AND recordid IN (SELECT id FROM {local_recognition_records} WHERE fromid = ?)", array($USER->id)),
+    'celebration_given' => $DB->count_records_sql("SELECT COUNT(*) FROM {local_recognition_reactions} WHERE type = 'celebration' AND userid = ?", array($USER->id))
+);
+
+// Get user rankings
 $rankings = local_recognition_get_user_rankings();
 
 // Find the user's rank
@@ -383,7 +392,7 @@ foreach ($posts as $post) {
         'class' => 'btn btn-link recognition-like-btn p-0 me-4' . ($post->isliked ? ' liked' : ''),
         'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fa fa-heart me-1'));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-hand-holding-heart me-1'));
     echo html_writer::span($post->likes, 'likes-count');
     echo html_writer::end_tag('button');
     
@@ -392,7 +401,7 @@ foreach ($posts as $post) {
         'class' => 'btn btn-link recognition-thanks-btn p-0 me-4' . (isset($post->isthanked) && $post->isthanked ? ' thanked' : ''),
         'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fa fa-hands-helping me-1'));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-praying-hands me-1'));
     echo html_writer::span(isset($post->thanks) ? $post->thanks : 0, 'thanks-count');
     echo html_writer::end_tag('button');
     
@@ -401,7 +410,7 @@ foreach ($posts as $post) {
         'class' => 'btn btn-link recognition-celebration-btn p-0 me-4' . (isset($post->iscelebrated) && $post->iscelebrated ? ' celebrated' : ''),
         'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fa fa-glass-cheers me-1'));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-star me-1'));
     echo html_writer::span(isset($post->celebration) ? $post->celebration : 0, 'celebration-count');
     echo html_writer::end_tag('button');
     
@@ -410,7 +419,7 @@ foreach ($posts as $post) {
         'class' => 'btn btn-link recognition-comments-btn p-0',
         'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fa fa-comment me-1'));
+    echo html_writer::tag('i', '', array('class' => 'fas fa-comment-alt me-1'));
     echo html_writer::span($post->comments, 'comments-count');
     echo html_writer::end_tag('button');
     
@@ -542,15 +551,15 @@ $stats_data = array(
     array(
         'icon' => 'fas fa-praying-hands',
         'title' => 'Thanks',
-        'received' => 15,
-        'sent' => 20,
+        'received' => $user_stats['thanks_received'],
+        'sent' => $user_stats['thanks_given'],
         'color' => 'indigo'
     ),
     array(
         'icon' => 'fas fa-star',
         'title' => 'Celebration',
-        'received' => 5,
-        'sent' => 10,
+        'received' => $user_stats['celebration_received'],
+        'sent' => $user_stats['celebration_given'],
         'color' => 'violet'
     )
 );

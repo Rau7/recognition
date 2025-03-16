@@ -1098,15 +1098,15 @@
 }
 
 .stat-icon.purple {
-  color: #8b5cf6;
+  color: #dc3545; /* Beğeni (like) butonu rengi */
 }
 
 .stat-icon.indigo {
-  color: #6366f1;
+  color: #28a745; /* Teşekkür (thanks) butonu rengi */
 }
 
 .stat-icon.violet {
-  color: #7c3aed;
+  color: #ffc107; /* Kutlama (celebration) butonu rengi */
 }
 
 .stat-title {
