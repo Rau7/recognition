@@ -247,6 +247,14 @@ $posts = array();
 $context = context_system::instance();
 $fs = get_file_storage();
 
+// Pagination için değişkenler
+$page = optional_param('page', 0, PARAM_INT); // Şu anki sayfa
+$perpage = 5; // Sayfa başına gösterilecek post sayısı
+
+$sql_count = "SELECT COUNT(*) 
+              FROM {local_recognition_records} r";
+$total_posts = $DB->count_records_sql($sql_count);
+
 $sql = "SELECT r.*, rb.name as badgename, rb.icon as badgeicon,
                (SELECT COUNT(*) FROM {local_recognition_reactions} rl 
                 WHERE rl.recordid = r.id AND rl.type = 'like') as likes,
@@ -258,7 +266,10 @@ $sql = "SELECT r.*, rb.name as badgename, rb.icon as badgeicon,
         LEFT JOIN {local_recognition_badges} rb ON r.badgeid = rb.id
         ORDER BY r.timecreated DESC";
 
-$records = $DB->get_records_sql($sql, array($USER->id));
+// Pagination için SQL'i düzenle
+$sql_paginated = $sql . " LIMIT $perpage OFFSET " . ($page * $perpage);
+
+$records = $DB->get_records_sql($sql_paginated, array($USER->id));
 
 foreach ($records as $record) {
     // Get attached file
@@ -482,6 +493,14 @@ foreach ($posts as $post) {
     echo html_writer::end_div(); // recognition-comments
     
     echo html_writer::end_div(); // card
+}
+
+// Pagination ekleme
+if ($total_posts > $perpage) {
+    echo html_writer::start_div('pagination-container d-flex justify-content-center mb-4');
+    $pagination = new paging_bar($total_posts, $page, $perpage, $PAGE->url);
+    echo $OUTPUT->render($pagination);
+    echo html_writer::end_div();
 }
 
 echo html_writer::end_div(); // col-md-6
