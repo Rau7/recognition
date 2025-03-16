@@ -96,6 +96,16 @@ $string['daysago'] = '{$a} days ago';
 $string['weeksago'] = '{$a} weeks ago';
 $string['monthsago'] = '{$a} months ago';
 $string['yearsago'] = '{$a} years ago';
+$string['year'] = 'year ago';
+$string['years'] = 'years ago';
+$string['month'] = 'month ago';
+$string['months'] = 'months ago';
+$string['day'] = 'day ago';
+$string['days'] = 'days ago';
+$string['hour'] = 'hour ago';
+$string['hours'] = 'hours ago';
+$string['minute'] = 'minute ago';
+$string['minutes'] = 'minutes ago';
 
 // Error messages
 $string['postnotfound'] = 'Post not found';

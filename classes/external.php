@@ -1,45 +1,46 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-namespace local_recognition;
-
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
-class external extends \external_api {
+/**
+ * External API for the recognition plugin.
+ */
+class local_recognition_external extends external_api {
     /**
      * Returns description of handle_reaction() parameters.
      *
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function handle_reaction_parameters() {
-        return new \external_function_parameters([
-            'action' => new \external_value(PARAM_ALPHANUMEXT, 'Action to perform'),
-            'recordid' => new \external_value(PARAM_INT, 'Record ID'),
-            'type' => new \external_value(PARAM_ALPHANUMEXT, 'Type of reaction'),
-            'content' => new \external_value(PARAM_TEXT, 'Content for comment', VALUE_DEFAULT, ''),
+        return new external_function_parameters([
+            'postid' => new external_value(PARAM_INT, 'Post ID'),
+            'action' => new external_value(PARAM_ALPHANUMEXT, 'Action to perform'),
+            'content' => new external_value(PARAM_TEXT, 'Content for comment', VALUE_DEFAULT, ''),
+            'commentid' => new external_value(PARAM_INT, 'Comment ID', VALUE_DEFAULT, 0),
         ]);
     }
 
     /**
      * Returns description of handle_reaction() result value.
      *
-     * @return \external_description
+     * @return external_description
      */
     public static function handle_reaction_returns() {
-        return new \external_single_structure([
-            'success' => new \external_value(PARAM_BOOL, 'Status of the operation'),
-            'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
-            'data' => new \external_single_structure([
-                'html' => new \external_value(PARAM_RAW, 'HTML content', VALUE_OPTIONAL),
-                'count' => new \external_value(PARAM_INT, 'Count of items', VALUE_OPTIONAL),
-                'likes' => new \external_value(PARAM_INT, 'Number of likes', VALUE_OPTIONAL),
-                'isLiked' => new \external_value(PARAM_BOOL, 'Whether the user has liked', VALUE_OPTIONAL),
-                'thanks' => new \external_value(PARAM_INT, 'Number of thanks', VALUE_OPTIONAL),
-                'isThanked' => new \external_value(PARAM_BOOL, 'Whether the user has thanked', VALUE_OPTIONAL),
-                'celebration' => new \external_value(PARAM_INT, 'Number of celebrations', VALUE_OPTIONAL),
-                'isCelebrated' => new \external_value(PARAM_BOOL, 'Whether the user has celebrated', VALUE_OPTIONAL),
+        return new external_single_structure([
+            'success' => new external_value(PARAM_BOOL, 'Status of the operation'),
+            'message' => new external_value(PARAM_TEXT, 'Message describing the result'),
+            'data' => new external_single_structure([
+                'html' => new external_value(PARAM_RAW, 'HTML content', VALUE_OPTIONAL),
+                'count' => new external_value(PARAM_INT, 'Count of items', VALUE_OPTIONAL),
+                'likes' => new external_value(PARAM_INT, 'Number of likes', VALUE_OPTIONAL),
+                'isLiked' => new external_value(PARAM_BOOL, 'Whether the user has liked', VALUE_OPTIONAL),
+                'thanks' => new external_value(PARAM_INT, 'Number of thanks', VALUE_OPTIONAL),
+                'isThanked' => new external_value(PARAM_BOOL, 'Whether the user has thanked', VALUE_OPTIONAL),
+                'celebration' => new external_value(PARAM_INT, 'Number of celebrations', VALUE_OPTIONAL),
+                'isCelebrated' => new external_value(PARAM_BOOL, 'Whether the user has celebrated', VALUE_OPTIONAL),
             ], 'Response data', VALUE_OPTIONAL, []),  // Default boş array olarak ayarlandı
         ]);
     }
@@ -47,25 +48,27 @@ class external extends \external_api {
     /**
      * Handle reactions (likes and comments).
      *
-     * @param string $action Action to perform
-     * @param int $recordid Record ID
-     * @param string $type Type of reaction
-     * @param string $content Content for comment
+     * @param int $postid Post ID
+     * @param string $action Action (like, comment, thanks, celebration)
+     * @param string $content Content (for comments)
+     * @param int $commentid Comment ID (for comment actions)
      * @return array
      */
-    public static function handle_reaction($action, $recordid, $type, $content = '') {
-        global $DB, $USER, $OUTPUT;
+    public static function handle_reaction($postid, $action, $content = '', $commentid = 0) {
+        global $DB, $USER;
 
-        // Parameter validation.
-        $params = self::validate_parameters(self::handle_reaction_parameters(), [
-            'action' => $action,
-            'recordid' => $recordid,
-            'type' => $type,
-            'content' => $content,
-        ]);
+        // Parameter validation
+        $params = self::validate_parameters(self::handle_reaction_parameters(),
+            array(
+                'postid' => $postid,
+                'action' => $action,
+                'content' => $content,
+                'commentid' => $commentid
+            )
+        );
 
-        // Context validation.
-        $context = \context_system::instance();
+        // Context validation
+        $context = context_system::instance();
         self::validate_context($context);
         require_capability('local/recognition:view', $context);
 
@@ -78,9 +81,9 @@ class external extends \external_api {
         try {
             switch ($params['action']) {
                 case 'get_comments':
-                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']]);
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']]);
                     if (!$post) {
-                        throw new \moodle_exception('postnotfound', 'local_recognition', '', $params['recordid']);
+                        throw new moodle_exception('postnotfound', 'local_recognition', '', $params['postid']);
                     }
 
                     $sql = "SELECT r.id, r.recordid, r.userid, r.type, r.content, r.timecreated, r.timemodified, 
@@ -90,34 +93,34 @@ class external extends \external_api {
                             WHERE r.recordid = :recordid AND r.type = :type
                             ORDER BY r.timecreated ASC";
                     
-                    $comments = $DB->get_records_sql($sql, ['recordid' => $params['recordid'], 'type' => 'comment']);
+                    $comments = $DB->get_records_sql($sql, ['recordid' => $params['postid'], 'type' => 'comment']);
                     
                     $html = '';
                     if (empty($comments)) {
-                        $html = \html_writer::tag('div', 'Henüz yorum yapılmamış.', ['class' => 'text-muted text-center py-3']);
+                        $html = html_writer::tag('div', 'Henüz yorum yapılmamış.', ['class' => 'text-muted text-center py-3']);
                     } else {
-                        $html .= \html_writer::start_div('comments-list');
+                        $html .= html_writer::start_div('comments-list');
                         $index = 0;
                         foreach ($comments as $comment) {
                             $style = "--comment-depth: {$index}";
                             
-                            $html .= \html_writer::start_div('comment mb-2', ['style' => $style]);
+                            $html .= html_writer::start_div('comment mb-2', ['style' => $style]);
                             
                             // User avatar with initials
                             global $OUTPUT, $DB;
                             $user = $DB->get_record('user', array('id' => $comment->userid));
                             $userpicture = $OUTPUT->user_picture($user, array('size' => 40));
-                            $html .= \html_writer::div($userpicture, 'user-avatar');
+                            $html .= html_writer::div($userpicture, 'user-avatar');
                             
-                            $html .= \html_writer::start_div('comment-content');
-                            $html .= \html_writer::tag('strong', fullname($comment), ['class' => 'mr-2']);
-                            $html .= \html_writer::tag('span', $comment->content);
-                            $html .= \html_writer::end_div(); // comment-content
-                            $html .= \html_writer::end_div(); // comment
+                            $html .= html_writer::start_div('comment-content');
+                            $html .= html_writer::tag('strong', fullname($comment), ['class' => 'mr-2']);
+                            $html .= html_writer::tag('span', $comment->content);
+                            $html .= html_writer::end_div(); // comment-content
+                            $html .= html_writer::end_div(); // comment
                             
                             $index++;
                         }
-                        $html .= \html_writer::end_div(); // comments-list
+                        $html .= html_writer::end_div(); // comments-list
                     }
                     
                     $result['success'] = true;
@@ -128,9 +131,9 @@ class external extends \external_api {
                     break;
 
                 case 'like':
-                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']], '*', MUST_EXIST);
                     $existing = $DB->get_record('local_recognition_reactions', [
-                        'recordid' => $params['recordid'],
+                        'recordid' => $params['postid'],
                         'userid' => $USER->id,
                         'type' => 'like'
                     ]);
@@ -139,7 +142,7 @@ class external extends \external_api {
                         // Unlike
                         $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
                         $likecount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'like'
                         ]);
                         
@@ -150,8 +153,8 @@ class external extends \external_api {
                         ];
                     } else {
                         // Like
-                        $reaction = new \stdClass();
-                        $reaction->recordid = $params['recordid'];
+                        $reaction = new stdClass();
+                        $reaction->recordid = $params['postid'];
                         $reaction->userid = $USER->id;
                         $reaction->type = 'like';
                         $reaction->timecreated = time();
@@ -159,7 +162,7 @@ class external extends \external_api {
                         
                         $DB->insert_record('local_recognition_reactions', $reaction);
                         $likecount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'like'
                         ]);
                         
@@ -173,13 +176,13 @@ class external extends \external_api {
                 
                 case 'add_comment':
                     if (empty($params['content'])) {
-                        throw new \moodle_exception('emptycomment', 'local_recognition');
+                        throw new moodle_exception('emptycomment', 'local_recognition');
                     }
 
-                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']], '*', MUST_EXIST);
                     
-                    $reaction = new \stdClass();
-                    $reaction->recordid = $params['recordid'];
+                    $reaction = new stdClass();
+                    $reaction->recordid = $params['postid'];
                     $reaction->userid = $USER->id;
                     $reaction->type = 'comment';
                     $reaction->content = $params['content'];
@@ -189,18 +192,18 @@ class external extends \external_api {
                     $DB->insert_record('local_recognition_reactions', $reaction);
                     
                     // Yorum HTML'ini oluştur
-                    $commenthtml = \html_writer::start_div('comment mb-2');
+                    $commenthtml = html_writer::start_div('comment mb-2');
                     
                     // User avatar with initials
                     global $OUTPUT;
                     $userpicture = $OUTPUT->user_picture($USER, array('size' => 40));
-                    $commenthtml .= \html_writer::div($userpicture, 'user-avatar');
+                    $commenthtml .= html_writer::div($userpicture, 'user-avatar');
                     
-                    $commenthtml .= \html_writer::start_div('comment-content');
-                    $commenthtml .= \html_writer::tag('strong', fullname($USER), ['class' => 'mr-2']);
-                    $commenthtml .= \html_writer::tag('span', $params['content']);
-                    $commenthtml .= \html_writer::end_div(); // comment-content
-                    $commenthtml .= \html_writer::end_div(); // comment
+                    $commenthtml .= html_writer::start_div('comment-content');
+                    $commenthtml .= html_writer::tag('strong', fullname($USER), ['class' => 'mr-2']);
+                    $commenthtml .= html_writer::tag('span', $params['content']);
+                    $commenthtml .= html_writer::end_div(); // comment-content
+                    $commenthtml .= html_writer::end_div(); // comment
                     
                     $result['success'] = true;
                     $result['data'] = [
@@ -209,9 +212,9 @@ class external extends \external_api {
                     break;
 
                 case 'thanks':
-                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']], '*', MUST_EXIST);
                     $existing = $DB->get_record('local_recognition_reactions', [
-                        'recordid' => $params['recordid'],
+                        'recordid' => $params['postid'],
                         'userid' => $USER->id,
                         'type' => 'thanks'
                     ]);
@@ -220,13 +223,13 @@ class external extends \external_api {
                         // Teşekkürü kaldır
                         $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
                         $thankscount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'thanks'
                         ]);
                         
                         // Puanları güncelle
                         require_once(__DIR__ . '/../lib.php');
-                        local_recognition_thanks_removed($params['recordid'], $USER->id);
+                        local_recognition_thanks_removed($params['postid'], $USER->id);
                         
                         $result['success'] = true;
                         $result['data'] = [
@@ -235,8 +238,8 @@ class external extends \external_api {
                         ];
                     } else {
                         // Teşekkür ekle
-                        $reaction = new \stdClass();
-                        $reaction->recordid = $params['recordid'];
+                        $reaction = new stdClass();
+                        $reaction->recordid = $params['postid'];
                         $reaction->userid = $USER->id;
                         $reaction->type = 'thanks';
                         $reaction->timecreated = time();
@@ -244,13 +247,13 @@ class external extends \external_api {
                         
                         $DB->insert_record('local_recognition_reactions', $reaction);
                         $thankscount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'thanks'
                         ]);
                         
                         // Puanları güncelle
                         require_once(__DIR__ . '/../lib.php');
-                        local_recognition_thanks_added($params['recordid'], $USER->id);
+                        local_recognition_thanks_added($params['postid'], $USER->id);
                         
                         $result['success'] = true;
                         $result['data'] = [
@@ -261,9 +264,9 @@ class external extends \external_api {
                     break;
                     
                 case 'celebration':
-                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']], '*', MUST_EXIST);
                     $existing = $DB->get_record('local_recognition_reactions', [
-                        'recordid' => $params['recordid'],
+                        'recordid' => $params['postid'],
                         'userid' => $USER->id,
                         'type' => 'celebration'
                     ]);
@@ -272,13 +275,13 @@ class external extends \external_api {
                         // Kutlamayı kaldır
                         $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
                         $celebrationcount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'celebration'
                         ]);
                         
                         // Puanları güncelle
                         require_once(__DIR__ . '/../lib.php');
-                        local_recognition_celebration_removed($params['recordid'], $USER->id);
+                        local_recognition_celebration_removed($params['postid'], $USER->id);
                         
                         $result['success'] = true;
                         $result['data'] = [
@@ -287,8 +290,8 @@ class external extends \external_api {
                         ];
                     } else {
                         // Kutlama ekle
-                        $reaction = new \stdClass();
-                        $reaction->recordid = $params['recordid'];
+                        $reaction = new stdClass();
+                        $reaction->recordid = $params['postid'];
                         $reaction->userid = $USER->id;
                         $reaction->type = 'celebration';
                         $reaction->timecreated = time();
@@ -296,13 +299,13 @@ class external extends \external_api {
                         
                         $DB->insert_record('local_recognition_reactions', $reaction);
                         $celebrationcount = $DB->count_records('local_recognition_reactions', [
-                            'recordid' => $params['recordid'],
+                            'recordid' => $params['postid'],
                             'type' => 'celebration'
                         ]);
                         
                         // Puanları güncelle
                         require_once(__DIR__ . '/../lib.php');
-                        local_recognition_celebration_added($params['recordid'], $USER->id);
+                        local_recognition_celebration_added($params['postid'], $USER->id);
                         
                         $result['success'] = true;
                         $result['data'] = [
@@ -313,9 +316,9 @@ class external extends \external_api {
                     break;
 
                 default:
-                    throw new \moodle_exception('invalidaction', 'local_recognition');
+                    throw new moodle_exception('invalidaction', 'local_recognition');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['message'] = $e->getMessage();
             return $result;
         }
@@ -326,28 +329,28 @@ class external extends \external_api {
     /**
      * Returns description of add_like() parameters.
      *
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function add_like_parameters() {
-        return new \external_function_parameters([
-            'recordid' => new \external_value(PARAM_INT, 'Record ID'),
+        return new external_function_parameters([
+            'recordid' => new external_value(PARAM_INT, 'Record ID'),
         ]);
     }
 
     /**
      * Returns description of add_like() result value.
      *
-     * @return \external_description
+     * @return external_description
      */
     public static function add_like_returns() {
-        return new \external_single_structure([
-            'error' => new \external_value(PARAM_BOOL, 'Error status of the operation'),
-            'data' => new \external_single_structure([
-                'success' => new \external_value(PARAM_BOOL, 'Status of the operation'),
-                'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
-                'data' => new \external_single_structure([
-                    'likes' => new \external_value(PARAM_INT, 'Number of likes'),
-                    'isLiked' => new \external_value(PARAM_BOOL, 'Whether the user has liked'),
+        return new external_single_structure([
+            'error' => new external_value(PARAM_BOOL, 'Error status of the operation'),
+            'data' => new external_single_structure([
+                'success' => new external_value(PARAM_BOOL, 'Status of the operation'),
+                'message' => new external_value(PARAM_TEXT, 'Message describing the result'),
+                'data' => new external_single_structure([
+                    'likes' => new external_value(PARAM_INT, 'Number of likes'),
+                    'isLiked' => new external_value(PARAM_BOOL, 'Whether the user has liked'),
                 ], 'Response data', VALUE_OPTIONAL, []),
             ], 'Response data', VALUE_OPTIONAL, []),
         ]);
@@ -396,7 +399,7 @@ class external extends \external_api {
             );
         } else {
             // Like
-            $reaction = new \stdClass();
+            $reaction = new stdClass();
             $reaction->recordid = $params['recordid'];
             $reaction->userid = $USER->id;
             $reaction->type = 'like';
@@ -440,24 +443,24 @@ class external extends \external_api {
     /**
      * Returns description of add_comment() parameters.
      *
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function add_comment_parameters() {
-        return new \external_function_parameters([
-            'recordid' => new \external_value(PARAM_INT, 'Record ID'),
-            'content' => new \external_value(PARAM_TEXT, 'Content for comment'),
+        return new external_function_parameters([
+            'recordid' => new external_value(PARAM_INT, 'Record ID'),
+            'content' => new external_value(PARAM_TEXT, 'Content for comment'),
         ]);
     }
 
     /**
      * Returns description of add_comment() result value.
      *
-     * @return \external_description
+     * @return external_description
      */
     public static function add_comment_returns() {
-        return new \external_single_structure([
-            'status' => new \external_value(PARAM_BOOL, 'Status of the operation'),
-            'message' => new \external_value(PARAM_TEXT, 'Message describing the result'),
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of the operation'),
+            'message' => new external_value(PARAM_TEXT, 'Message describing the result'),
         ]);
     }
 

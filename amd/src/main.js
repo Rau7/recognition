@@ -53,7 +53,7 @@ define(["jquery", "core/ajax", "core/notification"], function (
       });
 
       // Like button click handler
-      $(".recognition-like-btn").on("click", function (e) {
+      $(document).on("click", ".recognition-like-btn", function (e) {
         e.preventDefault();
         var btn = $(this);
         var recordId = btn.data("record-id");
@@ -93,7 +93,7 @@ define(["jquery", "core/ajax", "core/notification"], function (
       });
 
       // Thanks button click handler
-      $(".recognition-thanks-btn").on("click", function (e) {
+      $(document).on("click", ".recognition-thanks-btn", function (e) {
         e.preventDefault();
         var btn = $(this);
         var recordId = btn.data("record-id");
@@ -116,7 +116,7 @@ define(["jquery", "core/ajax", "core/notification"], function (
               } else {
                 console.error("Thanks error:", response.message);
                 Notification.addNotification({
-                  message: response.message || "Error adding thanks",
+                  message: response.message || "Error thanking post",
                   type: "error",
                 });
               }
@@ -133,7 +133,7 @@ define(["jquery", "core/ajax", "core/notification"], function (
       });
 
       // Celebration button click handler
-      $(".recognition-celebration-btn").on("click", function (e) {
+      $(document).on("click", ".recognition-celebration-btn", function (e) {
         e.preventDefault();
         var btn = $(this);
         var recordId = btn.data("record-id");
@@ -156,7 +156,7 @@ define(["jquery", "core/ajax", "core/notification"], function (
               } else {
                 console.error("Celebration error:", response.message);
                 Notification.addNotification({
-                  message: response.message || "Error adding celebration",
+                  message: response.message || "Error celebrating post",
                   type: "error",
                 });
               }
@@ -172,26 +172,25 @@ define(["jquery", "core/ajax", "core/notification"], function (
         ]);
       });
 
-      // Comments toggle handler
-      $(".recognition-comments-btn").on("click", function (e) {
+      // Comments button click handler
+      $(document).on("click", ".recognition-comments-btn", function (e) {
         e.preventDefault();
         var btn = $(this);
         var recordId = btn.data("record-id");
-        var commentsSection = btn
-          .closest(".recognition-post")
-          .find(".recognition-comments");
+        var commentsSection = $("#comments-" + recordId);
 
-        // Toggle comments section
+        // Toggle comments visibility
         commentsSection.slideToggle();
 
-        // Load comments if section is being shown
-        if (commentsSection.is(":visible")) {
+        // Load comments if not already loaded
+        if (commentsSection.find(".comments-list").length === 0) {
+          commentsSection.prepend('<div class="comments-list"></div>');
           loadComments(recordId, commentsSection, btn);
         }
       });
 
       // Comment form submit handler
-      $(".recognition-comment-form").on("submit", function (e) {
+      $(document).on("submit", ".recognition-comment-form", function (e) {
         e.preventDefault();
         var form = $(this);
         var recordId = form.data("record-id");
@@ -268,6 +267,79 @@ define(["jquery", "core/ajax", "core/notification"], function (
             },
           },
         ]);
+      }
+
+      // AJAX Pagination
+      $(document).on(
+        "click",
+        "#recognition-pagination .page-item:not(.active) .page-link",
+        function (e) {
+          e.preventDefault();
+          var pageUrl = $(this).attr("href");
+
+          if (!pageUrl) {
+            return;
+          }
+
+          // Extract page number from URL
+          var pageMatch = pageUrl.match(/[?&]page=(\d+)/);
+          var page = pageMatch ? pageMatch[1] : 0;
+
+          loadPostsPage(page);
+        }
+      );
+
+      // Function to load posts via AJAX
+      function loadPostsPage(page) {
+        // Show loading indicator
+        $("#recognition-loading").show();
+
+        // Get the current URL and update the browser history
+        var baseUrl = window.location.href.split("?")[0];
+        var newUrl = baseUrl + (page > 0 ? "?page=" + page : "");
+        window.history.pushState({ page: page }, "", newUrl);
+
+        // Make AJAX request to get posts
+        $.ajax({
+          url: baseUrl,
+          data: {
+            page: page,
+            ajax: 1,
+          },
+          method: "GET",
+          success: function (response) {
+            // Extract posts container content from the response
+            var postsHtml = $(response)
+              .find("#recognition-posts-container")
+              .html();
+            var paginationHtml = $(response)
+              .find("#recognition-pagination")
+              .html();
+
+            // Update the page content
+            $("#recognition-posts-container").html(postsHtml);
+            $("#recognition-pagination").html(paginationHtml);
+
+            // Hide loading indicator
+            $("#recognition-loading").hide();
+
+            // Scroll to top of posts container
+            $("html, body").animate(
+              {
+                scrollTop: $("#recognition-posts-container").offset().top - 100,
+              },
+              500
+            );
+          },
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", error);
+            Notification.addNotification({
+              message: "Error loading posts: " + error,
+              type: "error",
+            });
+            $("#recognition-loading").hide();
+          },
+        });
       }
     },
   };
