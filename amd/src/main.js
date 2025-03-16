@@ -295,7 +295,6 @@ define(["jquery", "core/notification"], function ($, Notification) {
         function (e) {
           e.preventDefault();
           var pageUrl = $(this).attr("href");
-
           if (!pageUrl) {
             return;
           }
@@ -311,7 +310,7 @@ define(["jquery", "core/notification"], function ($, Notification) {
       // Function to load posts via AJAX
       function loadPostsPage(page) {
         // Show loading indicator
-        $("#recognition-loading").show();
+        $(".loading-indicator").show();
 
         // Get the current URL and update the browser history
         var baseUrl = window.location.href.split("?")[0];
@@ -329,34 +328,45 @@ define(["jquery", "core/notification"], function ($, Notification) {
           success: function (response) {
             // Extract posts container content from the response
             var postsHtml = $(response)
-              .find("#recognition-posts-container")
-              .html();
-            var paginationHtml = $(response)
-              .find("#recognition-pagination")
+              .find(".recognition-posts-container")
               .html();
 
             // Update the page content
-            $("#recognition-posts-container").html(postsHtml);
-            $("#recognition-pagination").html(paginationHtml);
+            $(".recognition-posts-container").html(postsHtml);
+
+            // Update pagination active state
+            $("#recognition-pagination .page-item").removeClass("active");
+            $("#recognition-pagination .page-item .page-link").each(
+              function () {
+                var linkUrl = $(this).attr("href");
+                if (linkUrl) {
+                  var linkPageMatch = linkUrl.match(/[?&]page=(\d+)/);
+                  var linkPage = linkPageMatch ? linkPageMatch[1] : 0;
+                  if (linkPage == page) {
+                    $(this).parent(".page-item").addClass("active");
+                  }
+                }
+              }
+            );
 
             // Hide loading indicator
-            $("#recognition-loading").hide();
+            $(".loading-indicator").hide();
 
             // Scroll to top of posts container
             $("html, body").animate(
               {
-                scrollTop: $("#recognition-posts-container").offset().top - 100,
+                scrollTop: $(".recognition-posts-container").offset().top - 100,
               },
               500
             );
           },
           error: function (xhr, status, error) {
-            console.error("AJAX error:", error);
+            console.error("AJAX error:", xhr.responseText, status, error);
             Notification.addNotification({
               message: "Error loading posts: " + error,
               type: "error",
             });
-            $("#recognition-loading").hide();
+            $(".loading-indicator").hide();
           },
         });
       }

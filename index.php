@@ -339,7 +339,7 @@ if (!$is_ajax) {
 $posts = array();
 
 // Add a container to wrap all posts for AJAX updates
-echo html_writer::start_tag('div', array('id' => 'recognition-posts-container'));
+echo html_writer::start_tag('div', array('id' => 'recognition-posts-container', 'class' => 'recognition-posts-container'));
 
 $context = context_system::instance();
 $fs = get_file_storage();
@@ -615,7 +615,7 @@ echo html_writer::div(
 
 // Pagination ekleme
 if ($total_posts > $perpage && !$is_ajax) {
-    echo html_writer::start_div('pagination-container d-flex justify-content-center mb-4');
+    echo html_writer::start_div('pagination-container d-flex justify-content-center mb-4', array('id' => 'recognition-pagination'));
     $baseurl = new moodle_url('/local/recognition/index.php');
     $pagination = new paging_bar($total_posts, $page, $perpage, $baseurl);
     $pagination->pagevar = 'page';
@@ -801,4 +801,7 @@ if (!$is_ajax) {
 echo html_writer::end_div(); // row
 echo html_writer::end_div(); // container-fluid
 
-echo $OUTPUT->footer();
+// Only output footer if not an AJAX request
+if (!$is_ajax) {
+    echo $OUTPUT->footer();
+}
