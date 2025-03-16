@@ -166,3 +166,5 @@ $string['postcount'] = 'Gönderiler';
 $string['commentcount'] = 'Yapılan Yorumlar';
 $string['commentsreceived'] = 'Alınan Yorumlar';
 $string['totalpoints'] = 'Toplam Puanlar';
+
+$string['loading'] = 'Yükleniyor';

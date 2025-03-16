@@ -170,3 +170,6 @@ $string['likesgiven'] = 'Likes Given';
 $string['likesreceived'] = 'Likes Received';
 $string['commentsreceived'] = 'Comments Received';
 $string['totalpoints'] = 'Total Points';
+
+
+$string['loading'] = 'Loading';
