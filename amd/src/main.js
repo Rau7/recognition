@@ -5,11 +5,7 @@
  * @copyright  2024 Your Name <your@email.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(["jquery", "core/ajax", "core/notification"], function (
-  $,
-  Ajax,
-  Notification
-) {
+define(["jquery", "core/notification"], function ($, Notification) {
   return {
     init: function () {
       // File upload preview
@@ -58,38 +54,44 @@ define(["jquery", "core/ajax", "core/notification"], function (
         var btn = $(this);
         var recordId = btn.data("record-id");
 
-        Ajax.call([
-          {
-            methodname: "local_recognition_handle_reaction",
-            args: {
-              action: "like",
-              recordid: recordId,
-              type: "like",
-            },
-            done: function (response) {
-              if (response.success) {
-                var likesCount = response.data.likes;
-                var isLiked = response.data.isLiked;
+        console.log("Like button clicked for record ID:", recordId);
 
-                btn.find(".likes-count").text(likesCount);
-                btn.toggleClass("liked", isLiked);
-              } else {
-                console.error("Like error:", response.message);
-                Notification.addNotification({
-                  message: response.message || "Error liking post",
-                  type: "error",
-                });
-              }
-            },
-            fail: function (error) {
-              console.error("AJAX error:", error);
+        // Use the ajax.php file directly instead of the web service
+        $.ajax({
+          url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+          type: "POST",
+          data: {
+            action: "like",
+            postid: recordId,
+            content: "",
+            commentid: 0,
+            sesskey: M.cfg.sesskey,
+          },
+          dataType: "json",
+          success: function (response) {
+            console.log("Like response:", response);
+            if (response.success) {
+              var likesCount = response.data.likes;
+              var isLiked = response.data.isLiked;
+
+              btn.find(".likes-count").text(likesCount);
+              btn.toggleClass("liked", isLiked);
+            } else {
+              console.error("Like error:", response.message);
               Notification.addNotification({
-                message: "Error connecting to server",
+                message: response.message || "Error liking post",
                 type: "error",
               });
-            },
+            }
           },
-        ]);
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", xhr.responseText, status, error);
+            Notification.addNotification({
+              message: "Error connecting to server: " + error,
+              type: "error",
+            });
+          },
+        });
       });
 
       // Thanks button click handler
@@ -98,38 +100,44 @@ define(["jquery", "core/ajax", "core/notification"], function (
         var btn = $(this);
         var recordId = btn.data("record-id");
 
-        Ajax.call([
-          {
-            methodname: "local_recognition_handle_reaction",
-            args: {
-              action: "thanks",
-              recordid: recordId,
-              type: "thanks",
-            },
-            done: function (response) {
-              if (response.success) {
-                var thanksCount = response.data.thanks;
-                var isThanked = response.data.isThanked;
+        console.log("Thanks button clicked for record ID:", recordId);
 
-                btn.find(".thanks-count").text(thanksCount);
-                btn.toggleClass("thanked", isThanked);
-              } else {
-                console.error("Thanks error:", response.message);
-                Notification.addNotification({
-                  message: response.message || "Error thanking post",
-                  type: "error",
-                });
-              }
-            },
-            fail: function (error) {
-              console.error("AJAX error:", error);
+        // Use the ajax.php file directly instead of the web service
+        $.ajax({
+          url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+          type: "POST",
+          data: {
+            action: "thanks",
+            postid: recordId,
+            content: "",
+            commentid: 0,
+            sesskey: M.cfg.sesskey,
+          },
+          dataType: "json",
+          success: function (response) {
+            console.log("Thanks response:", response);
+            if (response.success) {
+              var thanksCount = response.data.thanks;
+              var isThanked = response.data.isThanked;
+
+              btn.find(".thanks-count").text(thanksCount);
+              btn.toggleClass("thanked", isThanked);
+            } else {
+              console.error("Thanks error:", response.message);
               Notification.addNotification({
-                message: "Error connecting to server",
+                message: response.message || "Error thanking post",
                 type: "error",
               });
-            },
+            }
           },
-        ]);
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", xhr.responseText, status, error);
+            Notification.addNotification({
+              message: "Error connecting to server: " + error,
+              type: "error",
+            });
+          },
+        });
       });
 
       // Celebration button click handler
@@ -138,38 +146,44 @@ define(["jquery", "core/ajax", "core/notification"], function (
         var btn = $(this);
         var recordId = btn.data("record-id");
 
-        Ajax.call([
-          {
-            methodname: "local_recognition_handle_reaction",
-            args: {
-              action: "celebration",
-              recordid: recordId,
-              type: "celebration",
-            },
-            done: function (response) {
-              if (response.success) {
-                var celebrationCount = response.data.celebration;
-                var isCelebrated = response.data.isCelebrated;
+        console.log("Celebration button clicked for record ID:", recordId);
 
-                btn.find(".celebration-count").text(celebrationCount);
-                btn.toggleClass("celebrated", isCelebrated);
-              } else {
-                console.error("Celebration error:", response.message);
-                Notification.addNotification({
-                  message: response.message || "Error celebrating post",
-                  type: "error",
-                });
-              }
-            },
-            fail: function (error) {
-              console.error("AJAX error:", error);
+        // Use the ajax.php file directly instead of the web service
+        $.ajax({
+          url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+          type: "POST",
+          data: {
+            action: "celebration",
+            postid: recordId,
+            content: "",
+            commentid: 0,
+            sesskey: M.cfg.sesskey,
+          },
+          dataType: "json",
+          success: function (response) {
+            console.log("Celebration response:", response);
+            if (response.success) {
+              var celebrationCount = response.data.celebration;
+              var isCelebrated = response.data.isCelebrated;
+
+              btn.find(".celebration-count").text(celebrationCount);
+              btn.toggleClass("celebrated", isCelebrated);
+            } else {
+              console.error("Celebration error:", response.message);
               Notification.addNotification({
-                message: "Error connecting to server",
+                message: response.message || "Error celebrating post",
                 type: "error",
               });
-            },
+            }
           },
-        ]);
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", xhr.responseText, status, error);
+            Notification.addNotification({
+              message: "Error connecting to server: " + error,
+              type: "error",
+            });
+          },
+        });
       });
 
       // Comments button click handler
@@ -204,69 +218,74 @@ define(["jquery", "core/ajax", "core/notification"], function (
           return;
         }
 
-        Ajax.call([
-          {
-            methodname: "local_recognition_handle_reaction",
-            args: {
-              action: "add_comment",
-              recordid: recordId,
-              type: "comment",
-              content: content,
-            },
-            done: function (response) {
-              if (response.success) {
-                input.val("");
-                loadComments(recordId, commentsSection, commentsBtn);
-              } else {
-                console.error("Comment error:", response.message);
-                Notification.addNotification({
-                  message: response.message || "Error adding comment",
-                  type: "error",
-                });
-              }
-            },
-            fail: function (error) {
-              console.error("AJAX error:", error);
+        $.ajax({
+          url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+          type: "POST",
+          data: {
+            action: "add_comment",
+            postid: recordId,
+            content: content,
+            commentid: 0,
+            sesskey: M.cfg.sesskey,
+          },
+          dataType: "json",
+          success: function (response) {
+            console.log("Comment response:", response);
+            if (response.success) {
+              input.val("");
+              loadComments(recordId, commentsSection, commentsBtn);
+            } else {
+              console.error("Comment error:", response.message);
               Notification.addNotification({
-                message: "Error connecting to server",
+                message: response.message || "Error adding comment",
                 type: "error",
               });
-            },
+            }
           },
-        ]);
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", xhr.responseText, status, error);
+            Notification.addNotification({
+              message: "Error connecting to server: " + error,
+              type: "error",
+            });
+          },
+        });
       });
 
       // Helper function to load comments
       function loadComments(recordId, commentsSection, btn) {
-        Ajax.call([
-          {
-            methodname: "local_recognition_handle_reaction",
-            args: {
-              action: "get_comments",
-              recordid: recordId,
-              type: "comment",
-            },
-            done: function (response) {
-              if (response.success) {
-                commentsSection.find(".comments-list").html(response.data.html);
-                btn.find(".comments-count").text(response.data.count);
-              } else {
-                console.error("Comments error:", response.message);
-                Notification.addNotification({
-                  message: response.message || "Error loading comments",
-                  type: "error",
-                });
-              }
-            },
-            fail: function (error) {
-              console.error("AJAX error:", error);
+        $.ajax({
+          url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+          type: "POST",
+          data: {
+            action: "get_comments",
+            postid: recordId,
+            content: "",
+            commentid: 0,
+            sesskey: M.cfg.sesskey,
+          },
+          dataType: "json",
+          success: function (response) {
+            console.log("Comments response:", response);
+            if (response.success) {
+              commentsSection.find(".comments-list").html(response.data.html);
+              btn.find(".comments-count").text(response.data.count);
+            } else {
+              console.error("Comments error:", response.message);
               Notification.addNotification({
-                message: "Error connecting to server",
+                message: response.message || "Error loading comments",
                 type: "error",
               });
-            },
+            }
           },
-        ]);
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", xhr.responseText, status, error);
+            Notification.addNotification({
+              message: "Error connecting to server: " + error,
+              type: "error",
+            });
+          },
+        });
       }
 
       // AJAX Pagination

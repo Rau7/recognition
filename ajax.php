@@ -22,13 +22,14 @@ $result = array(
 
 try {
     // Parametreleri kontrol et
-    if (!isset($_REQUEST['action']) || !isset($_REQUEST['recordid']) || !isset($_REQUEST['type'])) {
-        throw new Exception('Missing required parameters: action, recordid, or type');
+    if (!isset($_REQUEST['action']) || !isset($_REQUEST['postid'])) {
+        throw new Exception('Missing required parameters: action or postid');
     }
 
     $action = required_param('action', PARAM_ALPHA);
-    $recordid = required_param('recordid', PARAM_INT);
-    $type = required_param('type', PARAM_ALPHA);
+    $postid = required_param('postid', PARAM_INT);
+    $content = optional_param('content', '', PARAM_TEXT);
+    $commentid = optional_param('commentid', 0, PARAM_INT);
 
     // Veritabanı tablolarını kontrol et
     $table_records = 'local_recognition_records';
@@ -46,9 +47,9 @@ try {
         case 'get_comments':
             try {
                 // Post'u kontrol et
-                $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+                $post = $DB->get_record('local_recognition_records', array('id' => $postid));
                 if (!$post) {
-                    throw new Exception('Post not found with ID: ' . $recordid);
+                    throw new Exception('Post not found with ID: ' . $postid);
                 }
 
                 // Yorumları al
@@ -58,7 +59,7 @@ try {
                         WHERE r.recordid = ? AND r.type = ?
                         ORDER BY r.timecreated ASC";
                 
-                $comments = $DB->get_records_sql($sql, array($recordid, 'comment'));
+                $comments = $DB->get_records_sql($sql, array($postid, 'comment'));
                 
                 $html = '';
                 if (empty($comments)) {
@@ -92,9 +93,9 @@ try {
 
         case 'like':
             try {
-                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $post = $DB->get_record('local_recognition_records', array('id' => $postid), '*', MUST_EXIST);
                 $existing = $DB->get_record('local_recognition_reactions', array(
-                    'recordid' => $recordid,
+                    'recordid' => $postid,
                     'userid' => $USER->id,
                     'type' => 'like'
                 ));
@@ -103,7 +104,7 @@ try {
                     // Unlike
                     $DB->delete_records('local_recognition_reactions', array('id' => $existing->id));
                     $likecount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'like'
                     ));
                     
@@ -115,7 +116,7 @@ try {
                 } else {
                     // Like
                     $reaction = new stdClass();
-                    $reaction->recordid = $recordid;
+                    $reaction->recordid = $postid;
                     $reaction->userid = $USER->id;
                     $reaction->type = 'like';
                     $reaction->timecreated = time();
@@ -123,7 +124,7 @@ try {
                     
                     $DB->insert_record('local_recognition_reactions', $reaction);
                     $likecount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'like'
                     ));
                     
@@ -143,10 +144,10 @@ try {
             try {
                 $content = required_param('content', PARAM_TEXT);
                 
-                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $post = $DB->get_record('local_recognition_records', array('id' => $postid), '*', MUST_EXIST);
                 
                 $reaction = new stdClass();
-                $reaction->recordid = $recordid;
+                $reaction->recordid = $postid;
                 $reaction->userid = $USER->id;
                 $reaction->type = 'comment';
                 $reaction->content = $content;
@@ -180,9 +181,9 @@ try {
 
         case 'thanks':
             try {
-                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $post = $DB->get_record('local_recognition_records', array('id' => $postid), '*', MUST_EXIST);
                 $existing = $DB->get_record('local_recognition_reactions', array(
-                    'recordid' => $recordid,
+                    'recordid' => $postid,
                     'userid' => $USER->id,
                     'type' => 'thanks'
                 ));
@@ -191,12 +192,12 @@ try {
                     // Teşekkürü kaldır
                     $DB->delete_records('local_recognition_reactions', array('id' => $existing->id));
                     $thankscount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'thanks'
                     ));
                     
                     // Puanları güncelle
-                    local_recognition_thanks_removed($recordid, $USER->id);
+                    local_recognition_thanks_removed($postid, $USER->id);
                     
                     $result['success'] = true;
                     $result['data'] = array(
@@ -206,7 +207,7 @@ try {
                 } else {
                     // Teşekkür ekle
                     $reaction = new stdClass();
-                    $reaction->recordid = $recordid;
+                    $reaction->recordid = $postid;
                     $reaction->userid = $USER->id;
                     $reaction->type = 'thanks';
                     $reaction->timecreated = time();
@@ -214,12 +215,12 @@ try {
                     
                     $DB->insert_record('local_recognition_reactions', $reaction);
                     $thankscount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'thanks'
                     ));
                     
                     // Puanları güncelle
-                    local_recognition_thanks_added($recordid, $USER->id);
+                    local_recognition_thanks_added($postid, $USER->id);
                     
                     $result['success'] = true;
                     $result['data'] = array(
@@ -235,9 +236,9 @@ try {
             
         case 'celebration':
             try {
-                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $post = $DB->get_record('local_recognition_records', array('id' => $postid), '*', MUST_EXIST);
                 $existing = $DB->get_record('local_recognition_reactions', array(
-                    'recordid' => $recordid,
+                    'recordid' => $postid,
                     'userid' => $USER->id,
                     'type' => 'celebration'
                 ));
@@ -246,12 +247,12 @@ try {
                     // Kutlamayı kaldır
                     $DB->delete_records('local_recognition_reactions', array('id' => $existing->id));
                     $celebrationcount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'celebration'
                     ));
                     
                     // Puanları güncelle
-                    local_recognition_celebration_removed($recordid, $USER->id);
+                    local_recognition_celebration_removed($postid, $USER->id);
                     
                     $result['success'] = true;
                     $result['data'] = array(
@@ -261,7 +262,7 @@ try {
                 } else {
                     // Kutlama ekle
                     $reaction = new stdClass();
-                    $reaction->recordid = $recordid;
+                    $reaction->recordid = $postid;
                     $reaction->userid = $USER->id;
                     $reaction->type = 'celebration';
                     $reaction->timecreated = time();
@@ -269,12 +270,12 @@ try {
                     
                     $DB->insert_record('local_recognition_reactions', $reaction);
                     $celebrationcount = $DB->count_records('local_recognition_reactions', array(
-                        'recordid' => $recordid,
+                        'recordid' => $postid,
                         'type' => 'celebration'
                     ));
                     
                     // Puanları güncelle
-                    local_recognition_celebration_added($recordid, $USER->id);
+                    local_recognition_celebration_added($postid, $USER->id);
                     
                     $result['success'] = true;
                     $result['data'] = array(
