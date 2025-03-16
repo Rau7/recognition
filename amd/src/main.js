@@ -92,6 +92,86 @@ define(["jquery", "core/ajax", "core/notification"], function (
         ]);
       });
 
+      // Thanks button click handler
+      $(".recognition-thanks-btn").on("click", function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        var recordId = btn.data("record-id");
+
+        Ajax.call([
+          {
+            methodname: "local_recognition_handle_reaction",
+            args: {
+              action: "thanks",
+              recordid: recordId,
+              type: "thanks",
+            },
+            done: function (response) {
+              if (response.success) {
+                var thanksCount = response.data.thanks;
+                var isThanked = response.data.isThanked;
+
+                btn.find(".thanks-count").text(thanksCount);
+                btn.toggleClass("thanked", isThanked);
+              } else {
+                console.error("Thanks error:", response.message);
+                Notification.addNotification({
+                  message: response.message || "Error adding thanks",
+                  type: "error",
+                });
+              }
+            },
+            fail: function (error) {
+              console.error("AJAX error:", error);
+              Notification.addNotification({
+                message: "Error connecting to server",
+                type: "error",
+              });
+            },
+          },
+        ]);
+      });
+
+      // Celebration button click handler
+      $(".recognition-celebration-btn").on("click", function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        var recordId = btn.data("record-id");
+
+        Ajax.call([
+          {
+            methodname: "local_recognition_handle_reaction",
+            args: {
+              action: "celebration",
+              recordid: recordId,
+              type: "celebration",
+            },
+            done: function (response) {
+              if (response.success) {
+                var celebrationCount = response.data.celebration;
+                var isCelebrated = response.data.isCelebrated;
+
+                btn.find(".celebration-count").text(celebrationCount);
+                btn.toggleClass("celebrated", isCelebrated);
+              } else {
+                console.error("Celebration error:", response.message);
+                Notification.addNotification({
+                  message: response.message || "Error adding celebration",
+                  type: "error",
+                });
+              }
+            },
+            fail: function (error) {
+              console.error("AJAX error:", error);
+              Notification.addNotification({
+                message: "Error connecting to server",
+                type: "error",
+              });
+            },
+          },
+        ]);
+      });
+
       // Comments toggle handler
       $(".recognition-comments-btn").on("click", function (e) {
         e.preventDefault();

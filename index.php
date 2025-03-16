@@ -261,7 +261,15 @@ $sql = "SELECT r.*, rb.name as badgename, rb.icon as badgeicon,
                (SELECT COUNT(*) FROM {local_recognition_reactions} rc 
                 WHERE rc.recordid = r.id AND rc.type = 'comment') as comments,
                (SELECT 1 FROM {local_recognition_reactions} rl 
-                WHERE rl.recordid = r.id AND rl.type = 'like' AND rl.userid = ?) as isliked
+                WHERE rl.recordid = r.id AND rl.type = 'like' AND rl.userid = ?) as isliked,
+               (SELECT COUNT(*) FROM {local_recognition_reactions} rt 
+                WHERE rt.recordid = r.id AND rt.type = 'thanks') as thanks,
+               (SELECT 1 FROM {local_recognition_reactions} rt 
+                WHERE rt.recordid = r.id AND rt.type = 'thanks' AND rt.userid = ?) as isthanked,
+               (SELECT COUNT(*) FROM {local_recognition_reactions} rc 
+                WHERE rc.recordid = r.id AND rc.type = 'celebration') as celebration,
+               (SELECT 1 FROM {local_recognition_reactions} rc 
+                WHERE rc.recordid = r.id AND rc.type = 'celebration' AND rc.userid = ?) as iscelebrated
         FROM {local_recognition_records} r
         LEFT JOIN {local_recognition_badges} rb ON r.badgeid = rb.id
         ORDER BY r.timecreated DESC";
@@ -269,7 +277,7 @@ $sql = "SELECT r.*, rb.name as badgename, rb.icon as badgeicon,
 // Pagination için SQL'i düzenle
 $sql_paginated = $sql . " LIMIT $perpage OFFSET " . ($page * $perpage);
 
-$records = $DB->get_records_sql($sql_paginated, array($USER->id));
+$records = $DB->get_records_sql($sql_paginated, array($USER->id, $USER->id, $USER->id));
 
 foreach ($records as $record) {
     // Get attached file
@@ -378,25 +386,25 @@ foreach ($posts as $post) {
     echo html_writer::tag('i', '', array('class' => 'fa fa-heart me-1'));
     echo html_writer::span($post->likes, 'likes-count');
     echo html_writer::end_tag('button');
-
+    
     // Thanks button
     echo html_writer::start_tag('button', array(
-        'class' => 'btn btn-link reaction-btn thanks-btn p-0 me-4',
-        'title' => 'Thanks'
+        'class' => 'btn btn-link recognition-thanks-btn p-0 me-4' . (isset($post->isthanked) && $post->isthanked ? ' thanked' : ''),
+        'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fas fa-praying-hands me-1'));
-    echo html_writer::tag('span', '0', array('class' => 'reaction-count'));
+    echo html_writer::tag('i', '', array('class' => 'fa fa-hands-helping me-1'));
+    echo html_writer::span(isset($post->thanks) ? $post->thanks : 0, 'thanks-count');
     echo html_writer::end_tag('button');
-
+    
     // Celebration button
     echo html_writer::start_tag('button', array(
-        'class' => 'btn btn-link reaction-btn celebration-btn p-0 me-4',
-        'title' => 'Celebration'
+        'class' => 'btn btn-link recognition-celebration-btn p-0 me-4' . (isset($post->iscelebrated) && $post->iscelebrated ? ' celebrated' : ''),
+        'data-record-id' => $post->id
     ));
-    echo html_writer::tag('i', '', array('class' => 'fas fa-star me-1'));
-    echo html_writer::tag('span', '0', array('class' => 'reaction-count'));
+    echo html_writer::tag('i', '', array('class' => 'fa fa-glass-cheers me-1'));
+    echo html_writer::span(isset($post->celebration) ? $post->celebration : 0, 'celebration-count');
     echo html_writer::end_tag('button');
-
+    
     // Comment button
     echo html_writer::start_tag('button', array(
         'class' => 'btn btn-link recognition-comments-btn p-0',

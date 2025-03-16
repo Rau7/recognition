@@ -9,6 +9,10 @@ define('RECOGNITION_POINTS_LIKE_RECEIVED', 30);  // Beğeni alma puanı
 define('RECOGNITION_POINTS_COMMENT_RECEIVED', 50); // Yorum alma puanı
 define('RECOGNITION_POINTS_COMMENT_GIVEN', 20);   // Yorum yapma puanı
 define('RECOGNITION_POINTS_LIKE_GIVEN', 10);      // Beğeni yapma puanı
+define('RECOGNITION_POINTS_THANKS_RECEIVED', 40); // Teşekkür alma puanı
+define('RECOGNITION_POINTS_THANKS_GIVEN', 15);    // Teşekkür etme puanı
+define('RECOGNITION_POINTS_CELEBRATION_RECEIVED', 50); // Kutlama alma puanı
+define('RECOGNITION_POINTS_CELEBRATION_GIVEN', 20);    // Kutlama yapma puanı
 
 /**
  * Serves files for the recognition plugin
@@ -245,6 +249,210 @@ function local_recognition_comment_added($recordid, $userid) {
 }
 
 /**
+ * Teşekkür eklendiğinde çağrılır
+ */
+function local_recognition_thanks_added($recordid, $userid) {
+    global $DB;
+    
+    // Hangi tabloyu kullanacağımızı kontrol et
+    $table_exists_records = $DB->get_manager()->table_exists('local_recognition_records');
+    $table_exists_posts = $DB->get_manager()->table_exists('local_recognition_posts');
+    
+    // Post sahibini kontrol et
+    $post = null;
+    if ($table_exists_records) {
+        $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    }
+    
+    if (!$post && $table_exists_posts) {
+        $post = $DB->get_record('local_recognition_posts', array('id' => $recordid));
+    }
+    
+    if (!$post) {
+        return;
+    }
+    
+    // Post sahibi bilgisini al
+    $post_owner_id = isset($post->fromid) ? $post->fromid : $post->userid;
+    
+    // Kendi postuna teşekkür yapmışsa puan verme
+    if ($post_owner_id == $userid) {
+        return;
+    }
+    
+    // Teşekkür yapana puan ver
+    $record = new stdClass();
+    $record->badgeid = 0; // Varsayılan badge
+    $record->fromid = $userid; // Teşekkür eden
+    $record->toid = $userid; // Teşekkür eden (kendine puan)
+    $record->message = get_string('thanksgiven', 'local_recognition', fullname($DB->get_record('user', array('id' => $post_owner_id))));
+    $record->points = RECOGNITION_POINTS_THANKS_GIVEN;
+    $record->timecreated = time();
+    $record->type = 'thanks_given';
+    $DB->insert_record('local_recognition_records', $record);
+    
+    // Post sahibine teşekkür puanı ver
+    $record = new stdClass();
+    $record->badgeid = 0; // Varsayılan badge
+    $record->fromid = $userid; // Teşekkür eden
+    $record->toid = $post_owner_id; // Post sahibi
+    $record->message = get_string('thanksreceived', 'local_recognition', fullname($DB->get_record('user', array('id' => $userid))));
+    $record->points = RECOGNITION_POINTS_THANKS_RECEIVED;
+    $record->timecreated = time();
+    $record->type = 'thanks_received';
+    $DB->insert_record('local_recognition_records', $record);
+}
+
+/**
+ * Teşekkür silindiğinde çağrılır
+ */
+function local_recognition_thanks_removed($recordid, $userid) {
+    global $DB;
+    
+    // Hangi tabloyu kullanacağımızı kontrol et
+    $table_exists_records = $DB->get_manager()->table_exists('local_recognition_records');
+    $table_exists_posts = $DB->get_manager()->table_exists('local_recognition_posts');
+    
+    // Post sahibini kontrol et
+    $post = null;
+    if ($table_exists_records) {
+        $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    }
+    
+    if (!$post && $table_exists_posts) {
+        $post = $DB->get_record('local_recognition_posts', array('id' => $recordid));
+    }
+    
+    if (!$post) {
+        return;
+    }
+    
+    // Post sahibi bilgisini al
+    $post_owner_id = isset($post->fromid) ? $post->fromid : $post->userid;
+    
+    // Kendi postuna teşekkür yapmışsa işlem yapma
+    if ($post_owner_id == $userid) {
+        return;
+    }
+    
+    // Teşekkür edenin puanını sil
+    $DB->delete_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'toid' => $userid,
+        'type' => 'thanks_given'
+    ));
+    
+    // Post sahibinin puanını sil
+    $DB->delete_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'toid' => $post_owner_id,
+        'type' => 'thanks_received'
+    ));
+}
+
+/**
+ * Kutlama eklendiğinde çağrılır
+ */
+function local_recognition_celebration_added($recordid, $userid) {
+    global $DB;
+    
+    // Hangi tabloyu kullanacağımızı kontrol et
+    $table_exists_records = $DB->get_manager()->table_exists('local_recognition_records');
+    $table_exists_posts = $DB->get_manager()->table_exists('local_recognition_posts');
+    
+    // Post sahibini kontrol et
+    $post = null;
+    if ($table_exists_records) {
+        $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    }
+    
+    if (!$post && $table_exists_posts) {
+        $post = $DB->get_record('local_recognition_posts', array('id' => $recordid));
+    }
+    
+    if (!$post) {
+        return;
+    }
+    
+    // Post sahibi bilgisini al
+    $post_owner_id = isset($post->fromid) ? $post->fromid : $post->userid;
+    
+    // Kendi postuna kutlama yapmışsa puan verme
+    if ($post_owner_id == $userid) {
+        return;
+    }
+    
+    // Kutlama yapana puan ver
+    $record = new stdClass();
+    $record->badgeid = 0; // Varsayılan badge
+    $record->fromid = $userid; // Kutlama yapan
+    $record->toid = $userid; // Kutlama yapan (kendine puan)
+    $record->message = get_string('celebrationgiven', 'local_recognition', fullname($DB->get_record('user', array('id' => $post_owner_id))));
+    $record->points = RECOGNITION_POINTS_CELEBRATION_GIVEN;
+    $record->timecreated = time();
+    $record->type = 'celebration_given';
+    $DB->insert_record('local_recognition_records', $record);
+    
+    // Post sahibine kutlama puanı ver
+    $record = new stdClass();
+    $record->badgeid = 0; // Varsayılan badge
+    $record->fromid = $userid; // Kutlama yapan
+    $record->toid = $post_owner_id; // Post sahibi
+    $record->message = get_string('celebrationreceived', 'local_recognition', fullname($DB->get_record('user', array('id' => $userid))));
+    $record->points = RECOGNITION_POINTS_CELEBRATION_RECEIVED;
+    $record->timecreated = time();
+    $record->type = 'celebration_received';
+    $DB->insert_record('local_recognition_records', $record);
+}
+
+/**
+ * Kutlama silindiğinde çağrılır
+ */
+function local_recognition_celebration_removed($recordid, $userid) {
+    global $DB;
+    
+    // Hangi tabloyu kullanacağımızı kontrol et
+    $table_exists_records = $DB->get_manager()->table_exists('local_recognition_records');
+    $table_exists_posts = $DB->get_manager()->table_exists('local_recognition_posts');
+    
+    // Post sahibini kontrol et
+    $post = null;
+    if ($table_exists_records) {
+        $post = $DB->get_record('local_recognition_records', array('id' => $recordid));
+    }
+    
+    if (!$post && $table_exists_posts) {
+        $post = $DB->get_record('local_recognition_posts', array('id' => $recordid));
+    }
+    
+    if (!$post) {
+        return;
+    }
+    
+    // Post sahibi bilgisini al
+    $post_owner_id = isset($post->fromid) ? $post->fromid : $post->userid;
+    
+    // Kendi postuna kutlama yapmışsa işlem yapma
+    if ($post_owner_id == $userid) {
+        return;
+    }
+    
+    // Kutlama yapanın puanını sil
+    $DB->delete_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'toid' => $userid,
+        'type' => 'celebration_given'
+    ));
+    
+    // Post sahibinin puanını sil
+    $DB->delete_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'toid' => $post_owner_id,
+        'type' => 'celebration_received'
+    ));
+}
+
+/**
  * Kullanıcının toplam puanını hesaplar
  */
 function local_recognition_calculate_points($userid) {
@@ -286,13 +494,45 @@ function local_recognition_calculate_points($userid) {
     ));
     $points += $comments_given * RECOGNITION_POINTS_COMMENT_GIVEN;
     
+    // Aldığı teşekkür puanları (40 puan)
+    $thanks_received = $DB->count_records_sql("
+        SELECT COUNT(*)
+        FROM {local_recognition_records} r
+        WHERE r.toid = ? AND r.type = 'thanks_received'", array($userid));
+    $points += $thanks_received * RECOGNITION_POINTS_THANKS_RECEIVED;
+    
+    // Yaptığı teşekkür puanları (15 puan)
+    $thanks_given = $DB->count_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'type' => 'thanks_given'
+    ));
+    $points += $thanks_given * RECOGNITION_POINTS_THANKS_GIVEN;
+    
+    // Aldığı kutlama puanları (50 puan)
+    $celebrations_received = $DB->count_records_sql("
+        SELECT COUNT(*)
+        FROM {local_recognition_records} r
+        WHERE r.toid = ? AND r.type = 'celebration_received'", array($userid));
+    $points += $celebrations_received * RECOGNITION_POINTS_CELEBRATION_RECEIVED;
+    
+    // Yaptığı kutlama puanları (20 puan)
+    $celebrations_given = $DB->count_records('local_recognition_records', array(
+        'fromid' => $userid,
+        'type' => 'celebration_given'
+    ));
+    $points += $celebrations_given * RECOGNITION_POINTS_CELEBRATION_GIVEN;
+    
     return array(
         'points' => $points,
         'posts' => $posts,
         'likes_received' => $likes_received,
         'comments_received' => $comments_received,
         'likes_given' => $likes_given,
-        'comments_given' => $comments_given
+        'comments_given' => $comments_given,
+        'thanks_received' => $thanks_received,
+        'thanks_given' => $thanks_given,
+        'celebrations_received' => $celebrations_received,
+        'celebrations_given' => $celebrations_given
     );
 }
 

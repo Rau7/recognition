@@ -136,5 +136,86 @@ function xmldb_local_recognition_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024122005, 'local', 'recognition');
     }
 
+    if ($oldversion < 2024122709) {
+        // Add new settings for Thanks and Celebration reactions
+        $settings = array(
+            array(
+                'name' => 'points_thanks_received',
+                'value' => 40,
+                'timemodified' => time()
+            ),
+            array(
+                'name' => 'points_thanks_given',
+                'value' => 15,
+                'timemodified' => time()
+            ),
+            array(
+                'name' => 'points_celebration_received',
+                'value' => 50,
+                'timemodified' => time()
+            ),
+            array(
+                'name' => 'points_celebration_given',
+                'value' => 20,
+                'timemodified' => time()
+            )
+        );
+
+        foreach ($settings as $setting) {
+            // Check if setting already exists
+            if (!$DB->record_exists('local_recognition_settings', array('name' => $setting['name']))) {
+                $DB->insert_record('local_recognition_settings', (object)$setting);
+            }
+        }
+        
+        // Check if the reactions table exists
+        $table = new xmldb_table('local_recognition_reactions');
+        if (!$dbman->table_exists($table)) {
+            // Create reactions table
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('recordid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('type', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'like');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+            $table->add_key('recordid', XMLDB_KEY_FOREIGN, array('recordid'), 'local_recognition_records', array('id'));
+            $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+            
+            $table->add_index('recorduser', XMLDB_INDEX_UNIQUE, array('recordid', 'userid', 'type'));
+            
+            $dbman->create_table($table);
+            
+            // Migrate existing likes to the new reactions table
+            $likes = $DB->get_records('local_recognition_likes');
+            foreach ($likes as $like) {
+                $reaction = new stdClass();
+                $reaction->recordid = $like->postid;
+                $reaction->userid = $like->userid;
+                $reaction->type = 'like';
+                $reaction->timecreated = $like->timecreated;
+                $reaction->timemodified = $like->timecreated;
+                
+                $DB->insert_record('local_recognition_reactions', $reaction);
+            }
+        } else {
+            // Check if type field exists in the reactions table
+            $field = new xmldb_field('type', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'like');
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+        
+        // Add type field to local_recognition_records table if it doesn't exist
+        $table = new xmldb_table('local_recognition_records');
+        $field = new xmldb_field('type', XMLDB_TYPE_CHAR, '30', null, null, null, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2024122709, 'local', 'recognition');
+    }
+
     return true;
 }

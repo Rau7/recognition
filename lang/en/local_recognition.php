@@ -48,6 +48,10 @@ $string['points_like_received'] = 'Points for receiving a like';
 $string['points_like_given'] = 'Points for giving a like';
 $string['points_comment_received'] = 'Points for receiving a comment';
 $string['points_comment_made'] = 'Points for making a comment';
+$string['points_thanks_received'] = 'Points for receiving thanks';
+$string['points_thanks_given'] = 'Points for giving thanks';
+$string['points_celebration_received'] = 'Points for receiving celebration';
+$string['points_celebration_given'] = 'Points for giving celebration';
 $string['totalpoints'] = 'Total Points';
 $string['monthpoints'] = 'Points This Month';
 
@@ -118,6 +122,10 @@ $string['likegiven'] = 'Like given to a post';
 $string['likereceived'] = 'Like received on your post';
 $string['commentgiven'] = 'Comment added to a post';
 $string['commentreceived'] = 'Comment received on your post';
+$string['thanksreceived'] = '{$a} thanked you for your post';
+$string['thanksgiven'] = 'You thanked {$a} for their post';
+$string['celebrationreceived'] = '{$a} celebrated your post';
+$string['celebrationgiven'] = 'You celebrated {$a}\'s post';
 
 // Recognition badges
 $string['createrecognition'] = 'Create Recognition';

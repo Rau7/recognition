@@ -1206,3 +1206,29 @@
 .user-stats-container .user-info h5 {
   color: #fff !important;
 }
+
+/* Thanks ve Celebration butonları için stiller */
+.recognition-thanks-btn,
+.recognition-celebration-btn {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.recognition-thanks-btn:hover,
+.recognition-celebration-btn:hover {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.recognition-thanks-btn.thanked {
+  color: #28a745;
+}
+
+.recognition-celebration-btn.celebrated {
+  color: #ffc107;
+}
+
+.recognition-thanks-btn i,
+.recognition-celebration-btn i {
+  font-size: 1.1rem;
+}

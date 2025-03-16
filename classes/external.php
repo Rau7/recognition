@@ -36,6 +36,10 @@ class external extends \external_api {
                 'count' => new \external_value(PARAM_INT, 'Count of items', VALUE_OPTIONAL),
                 'likes' => new \external_value(PARAM_INT, 'Number of likes', VALUE_OPTIONAL),
                 'isLiked' => new \external_value(PARAM_BOOL, 'Whether the user has liked', VALUE_OPTIONAL),
+                'thanks' => new \external_value(PARAM_INT, 'Number of thanks', VALUE_OPTIONAL),
+                'isThanked' => new \external_value(PARAM_BOOL, 'Whether the user has thanked', VALUE_OPTIONAL),
+                'celebration' => new \external_value(PARAM_INT, 'Number of celebrations', VALUE_OPTIONAL),
+                'isCelebrated' => new \external_value(PARAM_BOOL, 'Whether the user has celebrated', VALUE_OPTIONAL),
             ], 'Response data', VALUE_OPTIONAL, []),  // Default boş array olarak ayarlandı
         ]);
     }
@@ -202,6 +206,110 @@ class external extends \external_api {
                     $result['data'] = [
                         'html' => $commenthtml,
                     ];
+                    break;
+
+                case 'thanks':
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $existing = $DB->get_record('local_recognition_reactions', [
+                        'recordid' => $params['recordid'],
+                        'userid' => $USER->id,
+                        'type' => 'thanks'
+                    ]);
+                    
+                    if ($existing) {
+                        // Teşekkürü kaldır
+                        $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
+                        $thankscount = $DB->count_records('local_recognition_reactions', [
+                            'recordid' => $params['recordid'],
+                            'type' => 'thanks'
+                        ]);
+                        
+                        // Puanları güncelle
+                        require_once(__DIR__ . '/../lib.php');
+                        local_recognition_thanks_removed($params['recordid'], $USER->id);
+                        
+                        $result['success'] = true;
+                        $result['data'] = [
+                            'thanks' => $thankscount,
+                            'isThanked' => false,
+                        ];
+                    } else {
+                        // Teşekkür ekle
+                        $reaction = new \stdClass();
+                        $reaction->recordid = $params['recordid'];
+                        $reaction->userid = $USER->id;
+                        $reaction->type = 'thanks';
+                        $reaction->timecreated = time();
+                        $reaction->timemodified = time();
+                        
+                        $DB->insert_record('local_recognition_reactions', $reaction);
+                        $thankscount = $DB->count_records('local_recognition_reactions', [
+                            'recordid' => $params['recordid'],
+                            'type' => 'thanks'
+                        ]);
+                        
+                        // Puanları güncelle
+                        require_once(__DIR__ . '/../lib.php');
+                        local_recognition_thanks_added($params['recordid'], $USER->id);
+                        
+                        $result['success'] = true;
+                        $result['data'] = [
+                            'thanks' => $thankscount,
+                            'isThanked' => true,
+                        ];
+                    }
+                    break;
+                    
+                case 'celebration':
+                    $post = $DB->get_record('local_recognition_records', ['id' => $params['recordid']], '*', MUST_EXIST);
+                    $existing = $DB->get_record('local_recognition_reactions', [
+                        'recordid' => $params['recordid'],
+                        'userid' => $USER->id,
+                        'type' => 'celebration'
+                    ]);
+                    
+                    if ($existing) {
+                        // Kutlamayı kaldır
+                        $DB->delete_records('local_recognition_reactions', ['id' => $existing->id]);
+                        $celebrationcount = $DB->count_records('local_recognition_reactions', [
+                            'recordid' => $params['recordid'],
+                            'type' => 'celebration'
+                        ]);
+                        
+                        // Puanları güncelle
+                        require_once(__DIR__ . '/../lib.php');
+                        local_recognition_celebration_removed($params['recordid'], $USER->id);
+                        
+                        $result['success'] = true;
+                        $result['data'] = [
+                            'celebration' => $celebrationcount,
+                            'isCelebrated' => false,
+                        ];
+                    } else {
+                        // Kutlama ekle
+                        $reaction = new \stdClass();
+                        $reaction->recordid = $params['recordid'];
+                        $reaction->userid = $USER->id;
+                        $reaction->type = 'celebration';
+                        $reaction->timecreated = time();
+                        $reaction->timemodified = time();
+                        
+                        $DB->insert_record('local_recognition_reactions', $reaction);
+                        $celebrationcount = $DB->count_records('local_recognition_reactions', [
+                            'recordid' => $params['recordid'],
+                            'type' => 'celebration'
+                        ]);
+                        
+                        // Puanları güncelle
+                        require_once(__DIR__ . '/../lib.php');
+                        local_recognition_celebration_added($params['recordid'], $USER->id);
+                        
+                        $result['success'] = true;
+                        $result['data'] = [
+                            'celebration' => $celebrationcount,
+                            'isCelebrated' => true,
+                        ];
+                    }
                     break;
 
                 default:

@@ -178,6 +178,116 @@ try {
             }
             break;
 
+        case 'thanks':
+            try {
+                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $existing = $DB->get_record('local_recognition_reactions', array(
+                    'recordid' => $recordid,
+                    'userid' => $USER->id,
+                    'type' => 'thanks'
+                ));
+                
+                if ($existing) {
+                    // Teşekkürü kaldır
+                    $DB->delete_records('local_recognition_reactions', array('id' => $existing->id));
+                    $thankscount = $DB->count_records('local_recognition_reactions', array(
+                        'recordid' => $recordid,
+                        'type' => 'thanks'
+                    ));
+                    
+                    // Puanları güncelle
+                    local_recognition_thanks_removed($recordid, $USER->id);
+                    
+                    $result['success'] = true;
+                    $result['data'] = array(
+                        'thanks' => $thankscount,
+                        'isThanked' => false
+                    );
+                } else {
+                    // Teşekkür ekle
+                    $reaction = new stdClass();
+                    $reaction->recordid = $recordid;
+                    $reaction->userid = $USER->id;
+                    $reaction->type = 'thanks';
+                    $reaction->timecreated = time();
+                    $reaction->timemodified = time();
+                    
+                    $DB->insert_record('local_recognition_reactions', $reaction);
+                    $thankscount = $DB->count_records('local_recognition_reactions', array(
+                        'recordid' => $recordid,
+                        'type' => 'thanks'
+                    ));
+                    
+                    // Puanları güncelle
+                    local_recognition_thanks_added($recordid, $USER->id);
+                    
+                    $result['success'] = true;
+                    $result['data'] = array(
+                        'thanks' => $thankscount,
+                        'isThanked' => true
+                    );
+                }
+            } catch (Exception $e) {
+                $result['success'] = false;
+                $result['message'] = 'Error adding thanks: ' . $e->getMessage();
+            }
+            break;
+            
+        case 'celebration':
+            try {
+                $post = $DB->get_record('local_recognition_records', array('id' => $recordid), '*', MUST_EXIST);
+                $existing = $DB->get_record('local_recognition_reactions', array(
+                    'recordid' => $recordid,
+                    'userid' => $USER->id,
+                    'type' => 'celebration'
+                ));
+                
+                if ($existing) {
+                    // Kutlamayı kaldır
+                    $DB->delete_records('local_recognition_reactions', array('id' => $existing->id));
+                    $celebrationcount = $DB->count_records('local_recognition_reactions', array(
+                        'recordid' => $recordid,
+                        'type' => 'celebration'
+                    ));
+                    
+                    // Puanları güncelle
+                    local_recognition_celebration_removed($recordid, $USER->id);
+                    
+                    $result['success'] = true;
+                    $result['data'] = array(
+                        'celebration' => $celebrationcount,
+                        'isCelebrated' => false
+                    );
+                } else {
+                    // Kutlama ekle
+                    $reaction = new stdClass();
+                    $reaction->recordid = $recordid;
+                    $reaction->userid = $USER->id;
+                    $reaction->type = 'celebration';
+                    $reaction->timecreated = time();
+                    $reaction->timemodified = time();
+                    
+                    $DB->insert_record('local_recognition_reactions', $reaction);
+                    $celebrationcount = $DB->count_records('local_recognition_reactions', array(
+                        'recordid' => $recordid,
+                        'type' => 'celebration'
+                    ));
+                    
+                    // Puanları güncelle
+                    local_recognition_celebration_added($recordid, $USER->id);
+                    
+                    $result['success'] = true;
+                    $result['data'] = array(
+                        'celebration' => $celebrationcount,
+                        'isCelebrated' => true
+                    );
+                }
+            } catch (Exception $e) {
+                $result['success'] = false;
+                $result['message'] = 'Error adding celebration: ' . $e->getMessage();
+            }
+            break;
+
         default:
             throw new Exception('Invalid action: ' . $action);
     }
