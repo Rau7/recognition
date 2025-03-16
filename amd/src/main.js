@@ -301,7 +301,7 @@ define(["jquery", "core/notification"], function ($, Notification) {
 
           // Extract page number from URL
           var pageMatch = pageUrl.match(/[?&]page=(\d+)/);
-          var page = pageMatch ? pageMatch[1] : 0;
+          var page = pageMatch ? parseInt(pageMatch[1]) : 0;
 
           loadPostsPage(page);
         }
@@ -336,13 +336,30 @@ define(["jquery", "core/notification"], function ($, Notification) {
 
             // Update pagination active state
             $("#recognition-pagination .page-item").removeClass("active");
+
+            // Fix the "Go to last page" button first
+            var totalPages = parseInt($("#recognition-pagination").data("total-pages") || 0);
+            if (totalPages > 0) {
+              var baseUrl = window.location.href.split("?")[0];
+              var lastPageUrl = baseUrl + "?page=" + (totalPages - 1);
+              $("#recognition-pagination .page-item.last .page-link").attr("href", lastPageUrl);
+            }
+
+            // Now update active state for each link
             $("#recognition-pagination .page-item .page-link").each(
               function () {
                 var linkUrl = $(this).attr("href");
                 if (linkUrl) {
                   var linkPageMatch = linkUrl.match(/[?&]page=(\d+)/);
-                  var linkPage = linkPageMatch ? linkPageMatch[1] : 0;
-                  if (linkPage == page) {
+                  var linkPage = linkPageMatch ? parseInt(linkPageMatch[1]) : 0;
+
+                  // Check if this is the current page
+                  if (linkPage === page) {
+                    $(this).parent(".page-item").addClass("active");
+                  }
+                } else {
+                  // Handle the case for the "first page" link which might not have a page parameter
+                  if (page === 0 && $(this).text().trim() === "1") {
                     $(this).parent(".page-item").addClass("active");
                   }
                 }

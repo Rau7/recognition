@@ -615,10 +615,32 @@ echo html_writer::div(
 
 // Pagination ekleme
 if ($total_posts > $perpage && !$is_ajax) {
-    echo html_writer::start_div('pagination-container d-flex justify-content-center mb-4', array('id' => 'recognition-pagination'));
+    // Calculate the correct last page number
+    $lastpage = ceil($total_posts / $perpage) - 1;
+    $totalpages = ceil($total_posts / $perpage);
+    
+    echo html_writer::start_div('pagination-container d-flex justify-content-center mb-4', 
+        array(
+            'id' => 'recognition-pagination',
+            'data-total-pages' => $totalpages
+        )
+    );
     $baseurl = new moodle_url('/local/recognition/index.php');
+    
+    // Create a custom paging_bar instance
     $pagination = new paging_bar($total_posts, $page, $perpage, $baseurl);
     $pagination->pagevar = 'page';
+    
+    // Prepare the pagination
+    $pagination->prepare($OUTPUT, $PAGE, 'content');
+    
+    // Fix the last page link if it exists
+    if (!empty($pagination->lastlink)) {
+        $lastpageurl = new moodle_url($baseurl, array('page' => $lastpage));
+        $pagination->lastlink = html_writer::link($lastpageurl, $totalpages, array('class' => 'last'));
+    }
+    
+    // Render the pagination
     echo $OUTPUT->render($pagination);
     echo html_writer::end_div();
 }
