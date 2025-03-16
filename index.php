@@ -122,7 +122,7 @@ foreach ($rankings as $rank) {
 }
 
 // Start main container
-echo html_writer::start_div('container-fluid mt-4');
+echo html_writer::start_div('container-fluid mt-4', array('id' => 'recognition-wall'));
 echo html_writer::start_div('row');
 
 // Left column - Top Posts
