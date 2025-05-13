@@ -44,7 +44,7 @@ try {
     }
 
     switch ($action) {
-        case 'get_comments':
+        case 'getcomments':
             try {
                 // Post'u kontrol et
                 $post = $DB->get_record('local_recognition_records', array('id' => $postid));
@@ -140,7 +140,7 @@ try {
             }
             break;
             
-        case 'add_comment':
+        case 'addcomment':
             try {
                 $content = required_param('content', PARAM_TEXT);
                 

@@ -331,7 +331,7 @@ define(["jquery", "core/notification"], function ($, Notification) {
           url: M.cfg.wwwroot + "/local/recognition/ajax.php",
           type: "POST",
           data: {
-            action: "add_comment",
+            action: "addcomment",
             postid: recordId,
             content: content,
             commentid: 0,
@@ -367,7 +367,7 @@ define(["jquery", "core/notification"], function ($, Notification) {
           url: M.cfg.wwwroot + "/local/recognition/ajax.php",
           type: "POST",
           data: {
-            action: "get_comments",
+            action: "getcomments",
             postid: recordId,
             content: "",
             commentid: 0,

@@ -39,7 +39,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     },
     menuItemTemplate: function (item) {
-      return "<span>@" + item.string + "</span>";
+      return (
+        '<span class="mention-highlight">@' + item.string + "&nbsp;</span>"
+      );
     },
   });
   var editor = document.getElementById("mention-editor");
