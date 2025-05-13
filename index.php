@@ -3,6 +3,7 @@
 //
 require_once('../../config.php');
 require_once($CFG->dirroot . '/local/recognition/lib.php');
+require_once($CFG->dirroot . '/local/recognition/mentionlib.php');
 
 // Helper function to format time elapsed
 function local_recognition_time_elapsed_string($datetime) {
@@ -270,9 +271,11 @@ if (!$is_ajax) {
     echo html_writer::start_div('mb-3');
     echo html_writer::tag('textarea', '', array(
         'name' => 'message',
-        'class' => 'form-control post-textarea',
+        'class' => 'form-control mention-textarea',
+        'rows' => 3,
         'placeholder' => get_string('writepost', 'local_recognition'),
-        'required' => 'required'
+        'required' => 'required',
+        'data-mention' => '1'
     ));
     echo html_writer::end_div();
 
@@ -455,7 +458,7 @@ foreach ($posts as $post) {
     echo html_writer::end_div(); // end card-header
     // Post content
     echo html_writer::start_div('card-body post-content');
-    echo html_writer::div($post->message, 'post-message');
+    echo html_writer::div(local_recognition_format_mentions($post->message), 'post-message');
     
     // Post image if exists
     if (!empty($post->attachment)) {

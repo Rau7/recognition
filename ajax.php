@@ -22,12 +22,12 @@ $result = array(
 
 try {
     // Parametreleri kontrol et
-    if (!isset($_REQUEST['action']) || !isset($_REQUEST['postid'])) {
+    /*if (!isset($_REQUEST['action']) || !isset($_REQUEST['postid'])) {
         throw new Exception('Missing required parameters: action or postid');
-    }
+    }*/
 
-    $action = required_param('action', PARAM_ALPHA);
-    $postid = required_param('postid', PARAM_INT);
+    $action = optional_param('action', '', PARAM_ALPHA);
+    $postid = optional_param('postid', 0, PARAM_INT);
     $content = optional_param('content', '', PARAM_TEXT);
     $commentid = optional_param('commentid', 0, PARAM_INT);
 
@@ -288,7 +288,24 @@ try {
                 $result['message'] = 'Error adding celebration: ' . $e->getMessage();
             }
             break;
-
+        case 'searchusers':
+            require_login();
+            require_sesskey();
+            $query = optional_param('query', '', PARAM_TEXT);
+            $users = [];
+            if ($query !== '') {
+                global $DB, $USER;
+                $like = '%' . $DB->sql_like_escape($query) . '%';
+                $sql = "SELECT id, firstname, lastname FROM {user} WHERE deleted = 0 AND suspended = 0 AND confirmed = 1 AND id <> ? AND (firstname LIKE ? OR lastname LIKE ?) ORDER BY firstname, lastname LIMIT 10";
+                $params = [$USER->id, $like, $like];
+                $records = $DB->get_records_sql($sql, $params);
+                foreach ($records as $u) {
+                    $users[] = [ 'id' => $u->id, 'fullname' => fullname($u) ];
+                }
+            }
+            $result['success'] = true;
+            $result['data'] = $users;
+            break;
         default:
             throw new Exception('Invalid action: ' . $action);
     }

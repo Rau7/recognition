@@ -8,6 +8,118 @@
 define(["jquery", "core/notification"], function ($, Notification) {
   return {
     init: function () {
+      // Mention/autocomplete for textarea
+      $(document).on("input", ".mention-textarea", function () {
+        console.log("hey");
+        const $textarea = $(this);
+        const cursorPos = $textarea.prop("selectionStart");
+        const text = $textarea.val();
+        const lastAt = text.lastIndexOf("@", cursorPos - 1);
+
+        console.log("[mention] textarea value:", text);
+        console.log("[mention] cursorPos:", cursorPos, "lastAt:", lastAt);
+
+        if (
+          lastAt >= 0 &&
+          (lastAt === 0 || /\s/.test(text.charAt(lastAt - 1)))
+        ) {
+          const query = text.substring(lastAt + 1, cursorPos);
+          console.log("[mention] @ bulundu, query:", query);
+
+          if (query.length >= 1) {
+            console.log("[mention] AJAX tetikleniyor, query:", query);
+            $.ajax({
+              url: M.cfg.wwwroot + "/local/recognition/ajax.php",
+              method: "GET",
+              data: {
+                action: "searchusers",
+                query: query,
+                sesskey: M.cfg.sesskey,
+              },
+              dataType: "json",
+              success: function (res) {
+                console.log("[mention] AJAX success, response:", res);
+                if (res.success) {
+                  let $dropdown = $("#mention-dropdown");
+                  if ($dropdown.length === 0) {
+                    $dropdown = $(
+                      '<ul id="mention-dropdown" class="mention-dropdown"></ul>'
+                    ).appendTo("body");
+                  }
+
+                  $dropdown.empty();
+                  (res.data || []).forEach(function (user) {
+                    const $item = $('<li class="mention-item"></li>')
+                      .text(user.fullname)
+                      .attr("data-uid", user.id);
+                    $dropdown.append($item);
+                  });
+
+                  const offset = $textarea.offset();
+                  $dropdown.css({
+                    top: offset.top + $textarea.outerHeight(),
+                    left: offset.left,
+                    width: $textarea.outerWidth(),
+                    position: "absolute",
+                    zIndex: 9999,
+                    display: "block",
+                  });
+                  console.log(
+                    "[mention] Dropdown gösterildi, user count:",
+                    res.users.length
+                  );
+                } else {
+                  console.log(
+                    "[mention] AJAX success fakat success=false, dropdown gizlendi"
+                  );
+                  $("#mention-dropdown").hide();
+                }
+              },
+              error: function (xhr, status, error) {
+                console.log("[mention] AJAX error", xhr, status, error);
+                $("#mention-dropdown").hide();
+              },
+            });
+          } else {
+            console.log("[mention] Query boş, dropdown gizlendi");
+            $("#mention-dropdown").hide();
+          }
+        } else {
+          console.log("[mention] @ uygun yerde değil, dropdown gizlendi");
+          $("#mention-dropdown").hide();
+        }
+      });
+
+      // Kullanıcı mention seçtiğinde textarea'ya ekleme
+      $(document).on("mousedown", ".mention-item", function (e) {
+        e.preventDefault(); // Blur tetiklenmesin
+        const $item = $(this);
+        const $textarea = $(".mention-textarea:focus");
+        if ($textarea.length === 0) return;
+
+        const cursorPos = $textarea.prop("selectionStart");
+        const text = $textarea.val();
+        const lastAt = text.lastIndexOf("@", cursorPos - 1);
+
+        const before = text.substring(0, lastAt);
+        const after = text.substring(cursorPos);
+        const mentionText = "@" + $item.text() + " ";
+
+        $textarea.val(before + mentionText + after);
+        $textarea.focus();
+        $textarea[0].setSelectionRange(
+          (before + mentionText).length,
+          (before + mentionText).length
+        );
+        $("#mention-dropdown").hide();
+      });
+
+      // Textarea odaktan çıkınca dropdown'u gizle (hafif gecikmeyle)
+      $(document).on("blur", ".mention-textarea", function () {
+        setTimeout(function () {
+          $("#mention-dropdown").hide();
+        }, 200);
+      });
       // File upload preview
       $(".file-input").on("change", function (e) {
         var file = e.target.files[0];
@@ -338,11 +450,16 @@ define(["jquery", "core/notification"], function ($, Notification) {
             $("#recognition-pagination .page-item").removeClass("active");
 
             // Fix the "Go to last page" button first
-            var totalPages = parseInt($("#recognition-pagination").data("total-pages") || 0);
+            var totalPages = parseInt(
+              $("#recognition-pagination").data("total-pages") || 0
+            );
             if (totalPages > 0) {
               var baseUrl = window.location.href.split("?")[0];
               var lastPageUrl = baseUrl + "?page=" + (totalPages - 1);
-              $("#recognition-pagination .page-item.last .page-link").attr("href", lastPageUrl);
+              $("#recognition-pagination .page-item.last .page-link").attr(
+                "href",
+                lastPageUrl
+              );
             }
 
             // Now update active state for each link

@@ -110,6 +110,32 @@
 }
 
 /* Form Styles */
+
+.mention-dropdown {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  position: absolute;
+  z-index: 9999;
+}
+.mention-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #222;
+}
+.mention-item:hover,
+.mention-item.active {
+  background: #f0f4ff;
+  color: #0066cc;
+}
+
 .recognition-form {
   width: 100%;
   margin: 2rem auto;
