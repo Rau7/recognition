@@ -47,6 +47,47 @@ document.addEventListener("DOMContentLoaded", function () {
   var editor = document.getElementById("mention-editor");
   if (editor) tribute.attach(editor);
 
+  // Yorum inputlarına da Tribute ekle
+  function attachTributeToComments() {
+    document
+      .querySelectorAll(".comment-input[contenteditable]")
+      .forEach(function (input) {
+        if (!input.hasAttribute("data-tribute-attached")) {
+          tribute.attach(input);
+          input.setAttribute("data-tribute-attached", "true");
+        }
+      });
+  }
+  attachTributeToComments();
+
+  // Dinamik olarak eklenen yorum inputlarını da izle
+  var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (mutation.addedNodes) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType === 1) {
+            if (
+              node.matches &&
+              node.matches(".comment-input[contenteditable]")
+            ) {
+              tribute.attach(node);
+              node.setAttribute("data-tribute-attached", "true");
+            }
+            // Eğer form içinde ise
+            node.querySelectorAll &&
+              node
+                .querySelectorAll(".comment-input[contenteditable]")
+                .forEach(function (input) {
+                  tribute.attach(input);
+                  input.setAttribute("data-tribute-attached", "true");
+                });
+          }
+        });
+      }
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
   // Form submitte içeriği gizli inputa aktar
   var form = editor.closest("form");
   if (form) {

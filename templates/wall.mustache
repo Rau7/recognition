@@ -52,7 +52,8 @@
             
             <form class="comment-form">
                 <div class="input-group">
-                    <input type="text" class="form-control comment-input" placeholder="{{#str}}writecomment, local_recognition{{/str}}">
+                    <div class="form-control comment-input" contenteditable="true" data-placeholder="{{#str}}writecomment, local_recognition{{/str}}"></div>
+<input type="hidden" name="content" class="comment-hidden-content">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary">{{#str}}send, local_recognition{{/str}}</button>
                     </div>

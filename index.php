@@ -543,7 +543,9 @@ foreach ($posts as $post) {
             // Comment content
             echo html_writer::start_div('comment-content flex-grow-1');
             echo html_writer::tag('div', fullname($commentuser), array('class' => 'fw-bold'));
-            echo html_writer::div($comment->content, 'comment-text');
+            // Highlight mentions in comment content
+            $formatted_comment_content = local_recognition_format_mentions($comment->content);
+            echo html_writer::div($formatted_comment_content, 'comment-text');
             echo html_writer::div(userdate($comment->timecreated, get_string('strftimerecentfull', 'core_langconfig')), 'comment-time text-muted small');
             echo html_writer::end_div();
 
@@ -580,11 +582,18 @@ foreach ($posts as $post) {
         'data-record-id' => $post->id
     ));
     echo html_writer::start_div('input-group');
+    // Contenteditable comment input
+    echo html_writer::tag('div', '', array(
+        'class' => 'form-control comment-input',
+        'contenteditable' => 'true',
+        'data-placeholder' => get_string('writecomment', 'local_recognition'),
+        'style' => 'min-height:38px;max-height:120px;overflow-y:auto;'
+    ));
+    // Hidden input to store HTML content for backend
     echo html_writer::empty_tag('input', array(
-        'type' => 'text',
+        'type' => 'hidden',
         'name' => 'content',
-        'class' => 'form-control',
-        'placeholder' => get_string('writecomment', 'local_recognition')
+        'class' => 'comment-hidden-content'
     ));
     echo html_writer::start_div('input-group-append');
     echo html_writer::tag('button', get_string('comment', 'local_recognition'), array(
