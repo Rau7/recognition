@@ -16,9 +16,6 @@ define(["jquery", "core/notification"], function ($, Notification) {
         const text = $textarea.val();
         const lastAt = text.lastIndexOf("@", cursorPos - 1);
 
-        console.log("[mention] textarea value:", text);
-        console.log("[mention] cursorPos:", cursorPos, "lastAt:", lastAt);
-
         if (
           lastAt >= 0 &&
           (lastAt === 0 || /\s/.test(text.charAt(lastAt - 1)))

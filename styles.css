@@ -1165,6 +1165,7 @@
 }
 
 /* Responsive adjustments */
+
 @media (max-width: 768px) {
   .stat-card {
     padding: 0.75rem;
@@ -1257,4 +1258,19 @@
 .recognition-thanks-btn i,
 .recognition-celebration-btn i {
   font-size: 1.1rem;
+}
+
+.mention-highlight {
+  background: #e6f7ff;
+  color: #0074d9;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.mention-highlight:hover {
+  background: #bae7ff;
+  color: #005fa3;
+  text-decoration: underline;
 }

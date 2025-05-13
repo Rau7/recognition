@@ -267,16 +267,13 @@ if (!$is_ajax) {
         'value' => sesskey()
     ));
 
-    // Message textarea
+    // Message mention editor
     echo html_writer::start_div('mb-3');
-    echo html_writer::tag('textarea', '', array(
-        'name' => 'message',
-        'class' => 'form-control mention-textarea',
-        'rows' => 3,
-        'placeholder' => get_string('writepost', 'local_recognition'),
-        'required' => 'required',
-        'data-mention' => '1'
-    ));
+    echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">';
+    echo '<div id="mention-editor" class="mention-editor" contenteditable="true" data-placeholder="Birini @ ile etiketle..."></div>';
+    echo '<input type="hidden" name="message" id="message-hidden">';
+    echo '<script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>';
+    echo '<script src="/local/recognition/mention-tribute-init.js"></script>';
     echo html_writer::end_div();
 
     // Preview area for attachments

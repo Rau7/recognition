@@ -296,7 +296,7 @@ try {
             if ($query !== '') {
                 global $DB, $USER;
                 $like = '%' . $DB->sql_like_escape($query) . '%';
-                $sql = "SELECT id, firstname, lastname FROM {user} WHERE deleted = 0 AND suspended = 0 AND confirmed = 1 AND id <> ? AND (firstname LIKE ? OR lastname LIKE ?) ORDER BY firstname, lastname LIMIT 10";
+                $sql = "SELECT id, firstname, lastname FROM {user} WHERE deleted = 0 AND suspended = 0 AND id <> ? AND (firstname LIKE ? OR lastname LIKE ?) ORDER BY firstname, lastname LIMIT 10";
                 $params = [$USER->id, $like, $like];
                 $records = $DB->get_records_sql($sql, $params);
                 foreach ($records as $u) {

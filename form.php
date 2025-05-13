@@ -66,7 +66,11 @@ $badges = [
         </div>
 
         <div class="mt-4">
-            <textarea class="recognition-message" name="message" placeholder="<?php echo get_string('writeyourmessage', 'local_recognition'); ?>" required></textarea>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css">
+            <div id="mention-editor" class="mention-editor" contenteditable="true" data-placeholder="Birini @ ile etiketle..."></div>
+            <input type="hidden" name="message" id="message-hidden">
+            <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
+            <script src="/local/recognition/mention-tribute-init.js"></script>
         </div>
 
         <div class="recognition-visibility">
