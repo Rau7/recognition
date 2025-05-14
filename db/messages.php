@@ -1,14 +1,12 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array(
-    'recognition' => array(
-        'capability' => 'local/recognition:receive',
-        'defaults' => array(
-            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
-        )
-    )
-);
+$messageproviders = [
+    'mention_notification' => [
+        'capability' => 'moodle/site:sendmessage',
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + 1, // yerine: MESSAGE_DEFAULT_LOGGEDIN
+            'email' => MESSAGE_PERMITTED + 2, // yerine: MESSAGE_DEFAULT_LOGGEDOFF
+        ],
+    ],
+];

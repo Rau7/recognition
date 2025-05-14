@@ -33,6 +33,7 @@ $string['attachfile'] = 'Add Photo';
 
 // Messages
 $string['recognitiongiven'] = 'Recognition given successfully!';
+$string['mention_notification'] = 'Takdir Duvarı: Mention Bildirimi';
 $string['recognitionreceived'] = '{$a} has recognized your contribution!';
 $string['pointsearned'] = 'You earned {$a} points!';
 $string['invalidsession'] = 'Invalid session';

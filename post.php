@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect($returnurl);
 }
 
-$message = required_param('message', PARAM_TEXT);
+$message = required_param('message', PARAM_RAW);
 $badgeid = optional_param('badgeid', 0, PARAM_INT);
 $fs = get_file_storage();
 $context = context_system::instance();
@@ -30,6 +30,15 @@ try {
 
     // First insert the record to get the ID
     $recordid = $DB->insert_record('local_recognition_records', $record);
+
+    // --- Mention notification for posts ---
+    preg_match_all('/data-userid="(\\d+)"/', $message, $matches);
+    $mentioned_user_ids = array_unique($matches[1]);
+   
+    if (!empty($mentioned_user_ids)) {
+        $posturl = new moodle_url('/local/recognition/post.php', ['id' => $recordid]);
+        local_recognition_notify_mentions($mentioned_user_ids, $USER, $message, $posturl->out(false));
+    }
 
     // Handle file upload
     if (!empty($_FILES['attachment']['name'])) {

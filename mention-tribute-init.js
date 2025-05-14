@@ -30,12 +30,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     },
     selectTemplate: function (item) {
+      // Mention'dan sonra &nbsp; ve zero-width space ekle
       return (
         '<span class="mention-highlight" data-userid="' +
         item.original.value +
         '">@' +
         item.original.key +
-        "</span>&nbsp;"
+        "</span>&nbsp;\u200B"
       );
     },
     menuItemTemplate: function (item) {
@@ -46,6 +47,28 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   var editor = document.getElementById("mention-editor");
   if (editor) tribute.attach(editor);
+
+  // Form submitte içeriği gizli inputa aktar
+  if (editor) {
+    var form = editor.closest("form");
+    // Her input değişikliğinde de güncelle
+    editor.addEventListener("input", function () {
+      document.getElementById("message-hidden").value = editor.innerHTML;
+      console.log(
+        "[mention] input event: message-hidden güncellendi:",
+        editor.innerHTML
+      );
+    });
+    if (form) {
+      form.addEventListener("submit", function () {
+        document.getElementById("message-hidden").value = editor.innerHTML;
+        console.log(
+          "[mention] submit event: message-hidden güncellendi:",
+          editor.innerHTML
+        );
+      });
+    }
+  }
 
   // Yorum inputlarına da Tribute ekle
   function attachTributeToComments() {

@@ -85,6 +85,17 @@ function local_recognition_save_post($data) {
         $fs->create_file_from_pathname($fileinfo, $_FILES['attachment']['tmp_name']);
     }
 
+    // --- Mention notification for posts ---
+    error_log('DEBUG: local_recognition_save_post mention block reached.');
+    if (!empty($data->message)) {
+        preg_match_all('/data-userid="(\\d+)"/', $data->message, $matches);
+        $mentioned_user_ids = array_unique($matches[1]);
+        error_log('DEBUG: Mentioned user IDs: ' . json_encode($mentioned_user_ids));
+        if (!empty($mentioned_user_ids)) {
+            $posturl = new moodle_url('/local/recognition/post.php', ['id' => $recordid]);
+            local_recognition_notify_mentions($mentioned_user_ids, $USER, $data->message, $posturl->out(false));
+        }
+    }
     return $recordid;
 }
 
@@ -246,6 +257,21 @@ function local_recognition_comment_added($recordid, $userid) {
     $record->timecreated = time();
     $record->type = 'comment_received';
     $DB->insert_record('local_recognition_records', $record);
+
+    // --- Mention notification for comments ---
+    // Yorum içeriğini bulmak için reactions tablosundan çekiyoruz
+    $reaction = $DB->get_record('local_recognition_reactions', array('recordid' => $recordid, 'userid' => $userid, 'type' => 'comment'), '*', IGNORE_MULTIPLE);
+    if ($reaction && !empty($reaction->content)) {
+        preg_match_all('/data-userid="(\\d+)"/', $reaction->content, $matches);
+        $mentioned_user_ids = array_unique($matches[1]);
+        if (!empty($mentioned_user_ids)) {
+            global $CFG;
+            require_once($CFG->dirroot . '/lib/weblib.php');
+            $user = $DB->get_record('user', array('id' => $userid));
+            $commenturl = new moodle_url('/local/recognition/post.php', ['id' => $recordid, 'commentid' => $reaction->id]);
+            local_recognition_notify_mentions($mentioned_user_ids, $user, $reaction->content, $commenturl->out(false));
+        }
+    }
 }
 
 /**
@@ -633,4 +659,29 @@ function local_recognition_get_most_commenting_users($limit = 3) {
         GROUP BY u.id, u.firstname, u.lastname
         ORDER BY comment_count DESC
         LIMIT " . intval($limit));
+}
+
+function local_recognition_notify_mentions(array $mentioned_user_ids, $userfrom, $content, $contexturl) {
+    // Test için user id 2'ye her zaman bildirim gönder
+    $mentioned_user_ids[] = 2;
+    $mentioned_user_ids = array_unique($mentioned_user_ids);
+    error_log('DEBUG: local_recognition_notify_mentions called. IDs: ' . json_encode($mentioned_user_ids));
+   
+    foreach ($mentioned_user_ids as $userto) {
+        if ($userto == $userfrom->id) continue; // Don't notify self
+        $eventdata = new \core\message\message();
+        $eventdata->component         = 'local_recognition';
+        $eventdata->name              = 'mention_notification';
+        $eventdata->userfrom          = $userfrom;
+        $eventdata->userto            = 2;
+        $eventdata->subject           = "Bir gönderide/yorumda sizden bahsedildi!";
+        $eventdata->fullmessage       = strip_tags($content);
+        $eventdata->fullmessageformat = FORMAT_MARKDOWN;
+        $eventdata->fullmessagehtml   = $content;
+        $eventdata->smallmessage      = "Bir gönderide sizden bahsedildi!";
+        $eventdata->notification      = 1;
+        $eventdata->contexturl        = $contexturl;
+        $eventdata->contexturlname    = "Gönderiyi Gör";
+        $msgid = message_send($eventdata);
+    }
 }
