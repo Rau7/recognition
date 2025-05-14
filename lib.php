@@ -662,26 +662,21 @@ function local_recognition_get_most_commenting_users($limit = 3) {
 }
 
 function local_recognition_notify_mentions(array $mentioned_user_ids, $userfrom, $content, $contexturl) {
-    // Test için user id 2'ye her zaman bildirim gönder
-    $mentioned_user_ids[] = 2;
-    $mentioned_user_ids = array_unique($mentioned_user_ids);
-    error_log('DEBUG: local_recognition_notify_mentions called. IDs: ' . json_encode($mentioned_user_ids));
-   
     foreach ($mentioned_user_ids as $userto) {
         if ($userto == $userfrom->id) continue; // Don't notify self
         $eventdata = new \core\message\message();
-        $eventdata->component         = 'local_recognition';
-        $eventdata->name              = 'mention_notification';
-        $eventdata->userfrom          = $userfrom;
-        $eventdata->userto            = 2;
-        $eventdata->subject           = "Bir gönderide/yorumda sizden bahsedildi!";
-        $eventdata->fullmessage       = strip_tags($content);
-        $eventdata->fullmessageformat = FORMAT_MARKDOWN;
-        $eventdata->fullmessagehtml   = $content;
-        $eventdata->smallmessage      = "Bir gönderide sizden bahsedildi!";
-        $eventdata->notification      = 1;
-        $eventdata->contexturl        = $contexturl;
-        $eventdata->contexturlname    = "Gönderiyi Gör";
+        $eventdata->component = 'local_recognition';
+        $eventdata->name = 'mention_notification';
+        $eventdata->userfrom = $userfrom;
+        $eventdata->userto = $userto;
+        $eventdata->subject = "Bir gönderide/yorumda sizden bahsedildi!";
+        $eventdata->fullmessage = html_to_text($content);
+        $eventdata->fullmessageformat = FORMAT_PLAIN;
+        $eventdata->fullmessagehtml = $content;
+        $eventdata->smallmessage = "Bir gönderide sizden bahsedildi!";
+        $eventdata->notification = true;
+        $eventdata->contexturl = $contexturl;
+        $eventdata->contexturlname = "Gönderiyi Gör";
         $msgid = message_send($eventdata);
     }
 }
