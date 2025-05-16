@@ -680,21 +680,21 @@ if (!$is_ajax) {
     $stats_data = array(
         array(
             'icon' => 'fas fa-hand-holding-heart',
-            'title' => 'Appreciation',
+            'title' => get_string('stat_appreciation', 'local_recognition'),
             'received' => $user_stats['likes_received'],
             'sent' => $user_stats['likes_given'],
             'color' => 'purple'
         ),
         array(
             'icon' => 'fas fa-praying-hands',
-            'title' => 'Thanks',
+            'title' => get_string('stat_thanks', 'local_recognition'),
             'received' => $user_stats['thanks_received'],
             'sent' => $user_stats['thanks_given'],
             'color' => 'indigo'
         ),
         array(
             'icon' => 'fas fa-star',
-            'title' => 'Celebration',
+            'title' => get_string('stat_celebration', 'local_recognition'),
             'received' => $user_stats['celebration_received'],
             'sent' => $user_stats['celebration_given'],
             'color' => 'violet'
@@ -715,12 +715,12 @@ if (!$is_ajax) {
         echo html_writer::start_div('stat-numbers d-flex align-items-center ms-auto');
         echo html_writer::start_div('received-stats text-center me-4');
         echo html_writer::tag('div', $stat['received'], array('class' => 'stat-number'));
-        echo html_writer::tag('div', 'Received', array('class' => 'stat-label'));
+        echo html_writer::tag('div', get_string('stat_received', 'local_recognition'), array('class' => 'stat-label'));
         echo html_writer::end_div();
 
         echo html_writer::start_div('sent-stats text-center');
         echo html_writer::tag('div', $stat['sent'], array('class' => 'stat-number'));
-        echo html_writer::tag('div', 'Sent', array('class' => 'stat-label'));
+        echo html_writer::tag('div', get_string('stat_sent', 'local_recognition'), array('class' => 'stat-label'));
         echo html_writer::end_div();
         echo html_writer::end_div();
 

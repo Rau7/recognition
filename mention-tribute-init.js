@@ -45,8 +45,44 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     },
   });
+  // Kurs mention için yeni Tribute instance
+  var courseTribute = new Tribute({
+    trigger: "#",
+    values: function (text, cb) {
+      console.log("[courseTribute] Triggered with text:", text);
+      fetch(
+        M.cfg.wwwroot +
+          "/local/recognition/ajax_courses.php?q=" +
+          encodeURIComponent(text)
+      )
+        .then(function (resp) {
+          return resp.json();
+        })
+        .then(function (data) {
+          cb(data);
+        });
+    },
+    selectTemplate: function (item) {
+      return (
+        '<span class="course-mention" data-courseid="' +
+        item.original.id +
+        '">#' +
+        item.original.fullname +
+        "</span>&nbsp;\u200B"
+      );
+    },
+    menuItemTemplate: function (item) {
+      return '<span class="course-mention">#' + item.string + "&nbsp;</span>";
+    },
+    lookup: "fullname",
+    fillAttr: "fullname",
+  });
+
   var editor = document.getElementById("mention-editor");
-  if (editor) tribute.attach(editor);
+  if (editor) {
+    tribute.attach(editor);
+    courseTribute.attach(editor);
+  }
 
   // Form submitte içeriği gizli inputa aktar
   if (editor) {
@@ -77,6 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .forEach(function (input) {
         if (!input.hasAttribute("data-tribute-attached")) {
           tribute.attach(input);
+          courseTribute.attach(input);
           input.setAttribute("data-tribute-attached", "true");
         }
       });
@@ -94,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
               node.matches(".comment-input[contenteditable]")
             ) {
               tribute.attach(node);
+              courseTribute.attach(node);
               node.setAttribute("data-tribute-attached", "true");
             }
             // Eğer form içinde ise
@@ -102,6 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .querySelectorAll(".comment-input[contenteditable]")
                 .forEach(function (input) {
                   tribute.attach(input);
+                  courseTribute.attach(input);
                   input.setAttribute("data-tribute-attached", "true");
                 });
           }

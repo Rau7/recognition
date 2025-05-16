@@ -115,6 +115,11 @@ $string['likeerror'] = 'Gönderi beğenilirken hata oluştu: {$a}';
 
 // Success messages
 $string['commentadded'] = 'Yorum başarıyla eklendi';
+$string['stat_appreciation'] = 'Takdir';
+$string['stat_thanks'] = 'Teşekkür';
+$string['stat_celebration'] = 'Kutlama';
+$string['stat_received'] = 'Alınan';
+$string['stat_sent'] = 'Gönderilen';
 $string['commentdeleted'] = 'Yorum başarıyla silindi';
 $string['likeadded'] = 'Gönderi başarıyla beğenildi';
 $string['likeremoved'] = 'Beğeni başarıyla kaldırıldı';

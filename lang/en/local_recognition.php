@@ -42,6 +42,11 @@ $string['invaliduser'] = 'Invalid user selected';
 $string['cannotgiveself'] = 'You cannot give recognition to yourself';
 $string['norecords'] = 'No recognition records found';
 $string['norecords2'] = 'No recognitions yet. Be the first to recognize someone!';
+$string['stat_appreciation'] = 'Appreciation';
+$string['stat_thanks'] = 'Thanks';
+$string['stat_celebration'] = 'Celebration';
+$string['stat_received'] = 'Received';
+$string['stat_sent'] = 'Sent';
 
 // Points
 $string['points'] = 'Points';

@@ -28,9 +28,12 @@
   display: block;
 }
 
-.mention-editor .mention-highlight {
-  background: #e8f3ff;
-  color: #2466b8;
+.mention-editor .mention-highlight,
+.post-message .mention-highlight,
+.recognition-comment .mention-highlight,
+.comment-input .mention-highlight {
+  background: #eaf6ff;
+  color: #0073e6;
   border-radius: 5px;
   padding: 2px 6px;
   margin: 0 1px;
@@ -39,8 +42,76 @@
   transition: background 0.15s;
 }
 
-.mention-editor .mention-highlight:hover {
+.mention-editor .course-mention {
+  background: #f5f2ff;
+  color: #7c3aed;
+  border-radius: 5px;
+  padding: 2px 6px;
+  margin: 0 1px;
+  font-weight: 600;
+  border: 1px solid #e0d7fa;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.06);
+}
+
+.mention-editor .course-mention,
+.post-message .course-mention,
+.recognition-comment .course-mention,
+.comment-input .course-mention {
+  background: #f5f2ff;
+  color: #7c3aed;
+  border-radius: 5px;
+  padding: 2px 6px;
+  margin: 0 1px;
+  font-weight: 600;
+  border: 1px solid #e0d7fa;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.06);
+}
+.mention-editor .course-mention:hover,
+.post-message .course-mention:hover,
+.recognition-comment .course-mention:hover,
+.comment-input .course-mention:hover {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: #c4b5fd;
+}
+
+.mention-editor .mention-highlight,
+.post-message .mention-highlight,
+.recognition-comment .mention-highlight,
+.comment-input .mention-highlight {
+  background: #eaf6ff;
+  color: #0073e6;
+  border-radius: 5px;
+  padding: 2px 6px;
+  margin: 0 1px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mention-editor .mention-highlight:hover,
+.post-message .mention-highlight:hover,
+.recognition-comment .mention-highlight:hover,
+.comment-input .mention-highlight:hover {
   background: #c8e1ff;
+}
+
+.mention-editor .mention-highlight:hover,
+.post-message .mention-highlight:hover,
+.recognition-comment .mention-highlight:hover,
+.comment-input .mention-highlight:hover {
+  background: #c8e1ff;
+}
+
+@media (max-width: 600px) {
+  .mention-editor .mention-highlight,
+  .mention-editor .course-mention {
+    font-size: 15px;
+    padding: 2px 4px;
+  }
 }
 
 /* Make sure the editor doesn't overflow its container on mobile */
