@@ -436,6 +436,7 @@
 
 .text-muted {
   font-size: 0.9em;
+  opacity: 1 !important;
 }
 
 .recognition-post {

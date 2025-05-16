@@ -567,29 +567,51 @@ function local_recognition_calculate_points($userid) {
  */
 function local_recognition_get_user_rankings() {
     global $DB;
-    
-    $users = $DB->get_records('user', array('deleted' => 0));
-    $rankings = array();
-    
-    foreach ($users as $user) {
-        $stats = local_recognition_calculate_points($user->id);
-        $rankings[] = array(
-            'userid' => $user->id,
-            'points' => $stats['points']
-        );
-    }
-    
-    // Puanlara göre sırala
+
+    // Puan değerlerini sabitlerden al
+    $POST = RECOGNITION_POINTS_POST;
+    $LIKE_REC = RECOGNITION_POINTS_LIKE_RECEIVED;
+    $COMM_REC = RECOGNITION_POINTS_COMMENT_RECEIVED;
+    $LIKE_GIV = RECOGNITION_POINTS_LIKE_GIVEN;
+    $COMM_GIV = RECOGNITION_POINTS_COMMENT_GIVEN;
+    $THANK_REC = RECOGNITION_POINTS_THANKS_RECEIVED;
+    $THANK_GIV = RECOGNITION_POINTS_THANKS_GIVEN;
+    $CELEB_REC = RECOGNITION_POINTS_CELEBRATION_RECEIVED;
+    $CELEB_GIV = RECOGNITION_POINTS_CELEBRATION_GIVEN;
+
+    $sql = "
+        SELECT u.id AS userid,
+            (SELECT COUNT(*) FROM {local_recognition_records} r WHERE r.fromid = u.id) * $POST +
+            (SELECT COUNT(*) FROM {local_recognition_reactions} r 
+                JOIN {local_recognition_records} p ON r.recordid = p.id
+                WHERE p.fromid = u.id AND r.type = 'like') * $LIKE_REC +
+            (SELECT COUNT(*) FROM {local_recognition_reactions} r 
+                JOIN {local_recognition_records} p ON r.recordid = p.id
+                WHERE p.fromid = u.id AND r.type = 'comment') * $COMM_REC +
+            (SELECT COUNT(*) FROM {local_recognition_reactions} r WHERE r.userid = u.id AND r.type = 'like') * $LIKE_GIV +
+            (SELECT COUNT(*) FROM {local_recognition_reactions} r WHERE r.userid = u.id AND r.type = 'comment') * $COMM_GIV +
+            (SELECT COUNT(*) FROM {local_recognition_records} r WHERE r.toid = u.id AND r.type = 'thanks_received') * $THANK_REC +
+            (SELECT COUNT(*) FROM {local_recognition_records} r WHERE r.fromid = u.id AND r.type = 'thanks_given') * $THANK_GIV +
+            (SELECT COUNT(*) FROM {local_recognition_records} r WHERE r.toid = u.id AND r.type = 'celebration_received') * $CELEB_REC +
+            (SELECT COUNT(*) FROM {local_recognition_records} r WHERE r.fromid = u.id AND r.type = 'celebration_given') * $CELEB_GIV
+        AS points
+        FROM {user} u
+        WHERE u.deleted = 0 AND u.suspended = 0
+    ";
+
+    $records = $DB->get_records_sql($sql);
+
+    $rankings = array_values($records);
+
     usort($rankings, function($a, $b) {
-        return $b['points'] - $a['points'];
+        return $b->points - $a->points;
     });
-    
-    // Sıra numarası ekle
+
     $rank = 1;
-    foreach ($rankings as &$ranking) {
-        $ranking['rank'] = $rank++;
+    foreach ($rankings as &$r) {
+        $r->rank = $rank++;
     }
-    
+
     return $rankings;
 }
 

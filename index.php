@@ -116,8 +116,8 @@ $rankings = local_recognition_get_user_rankings();
 // Find the user's rank
 $user_rank = 0;
 foreach ($rankings as $rank) {
-    if ($rank['userid'] == $USER->id) {
-        $user_rank = $rank['rank'];
+    if ($rank->userid == $USER->id) {
+        $user_rank = $rank->rank;
         break;
     }
 }
@@ -747,35 +747,35 @@ if (!$is_ajax) {
 
     // First place
     echo html_writer::start_div('col-md-4 text-center');
-    $first_user = core_user::get_user($top_3_users[0]['userid']);
+    $first_user = core_user::get_user($top_3_users[0]->userid);
     echo html_writer::start_div('position-relative d-inline-block');
     global $OUTPUT;
     $userpicture = $OUTPUT->user_picture($first_user, array('size' => 65));
     echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-crown text-warning crown-icon')), 'user-avatar-large mb-2');
     echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold fs-5'));
-    echo html_writer::tag('small', number_format($top_3_users[0]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
+    echo html_writer::tag('small', number_format($top_3_users[0]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
     echo html_writer::end_div();
     echo html_writer::end_div();
 
     // Second place
     echo html_writer::start_div('col-md-4 text-center');
-    $second_user = core_user::get_user($top_3_users[1]['userid']);
+    $second_user = core_user::get_user($top_3_users[1]->userid);
     echo html_writer::start_div('position-relative d-inline-block');
     $userpicture = $OUTPUT->user_picture($second_user, array('size' => 50));
     echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-secondary medal-icon')), 'user-avatar-medium mb-2');
     echo html_writer::tag('div', fullname($second_user), array('class' => 'fw-bold'));
-    echo html_writer::tag('small', number_format($top_3_users[1]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
+    echo html_writer::tag('small', number_format($top_3_users[1]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
     echo html_writer::end_div();
     echo html_writer::end_div();
 
     // Third place
     echo html_writer::start_div('col-md-4 text-center');
-    $third_user = core_user::get_user($top_3_users[2]['userid']);
+    $third_user = core_user::get_user($top_3_users[2]->userid);
     echo html_writer::start_div('position-relative d-inline-block');
     $userpicture = $OUTPUT->user_picture($third_user, array('size' => 50));
     echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-bronze medal-icon')), 'user-avatar-medium mb-2');
     echo html_writer::tag('div', fullname($third_user), array('class' => 'fw-bold'));
-    echo html_writer::tag('small', number_format($top_3_users[2]['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
+    echo html_writer::tag('small', number_format($top_3_users[2]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
     echo html_writer::end_div();
     echo html_writer::end_div();
 
@@ -801,7 +801,7 @@ if (!$is_ajax) {
     $remaining_users = array_slice($rankings, 3, 7);
     foreach ($remaining_users as $index => $rank) {
         $rank_count = $index + 4;
-        $user = core_user::get_user($rank['userid']);
+        $user = core_user::get_user($rank->userid);
         
         echo html_writer::start_tag('li', array('class' => 'mb-3'));
         echo html_writer::start_div('d-flex align-items-center position-relative');
@@ -813,7 +813,7 @@ if (!$is_ajax) {
         // User Info
         echo html_writer::start_div('flex-grow-1');
         echo html_writer::tag('div', fullname($user), array('class' => 'fw-bold'));
-        echo html_writer::tag('small', number_format($rank['points']) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
+        echo html_writer::tag('small', number_format($rank->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
         echo html_writer::end_div();
         
         // Rank Badge
