@@ -144,18 +144,15 @@ if (!$is_ajax) {
     } else {
         foreach ($most_liked_posts as $post) {
             $userobj = $DB->get_record('user', array('id' => $post->fromid));
-            if ($userobj) {
-                echo html_writer::start_tag('li', array('class' => 'mb-2'));
-                echo html_writer::start_div('d-flex align-items-center');
-                echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-                echo html_writer::start_div('flex-grow-1');
-                echo html_writer::tag('div', fullname($userobj));
-                echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
-                echo html_writer::end_div();
-                echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
-                echo html_writer::end_div();
-                echo html_writer::end_tag('li');
-            }
+            echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+            echo html_writer::start_div('d-flex align-items-center flex-grow-1');
+            echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+            echo html_writer::start_div();
+            echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
+            echo html_writer::end_div();
+            echo html_writer::end_div();
+            echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
+            echo html_writer::end_tag('li');
         }
     }
     echo html_writer::end_tag('ul');
@@ -176,25 +173,14 @@ if (!$is_ajax) {
     } else {
         foreach ($most_commented_posts as $post) {
             $userobj = $DB->get_record('user', array('id' => $post->fromid));
-            if ($userobj) {
-                echo html_writer::start_tag('li', array('class' => 'mb-2'));
-                echo html_writer::start_div('d-flex align-items-center');
-                echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-                echo html_writer::start_div('flex-grow-1');
-                echo html_writer::tag('div', fullname($userobj));
-                echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
-                echo html_writer::end_div();
-                echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
-                echo html_writer::end_div();
-                echo html_writer::end_tag('li');
-            }
+            echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+            echo html_writer::start_div('d-flex align-items-center flex-grow-1');
             echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-            echo html_writer::start_div('flex-grow-1');
-            echo html_writer::tag('div', fullname($userobj));
-            echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+            echo html_writer::start_div();
+            echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
+            echo html_writer::end_div();
             echo html_writer::end_div();
             echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
-            echo html_writer::end_div();
             echo html_writer::end_tag('li');
         }
     }
