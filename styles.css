@@ -623,12 +623,13 @@
 }
 
 .comment-text {
-  margin: 0.25rem 0;
+  margin: 0.4rem 0;
 }
 
 .comment-time {
-  font-size: 0.75rem;
+  font-size: 0.65rem !important;
   color: #6c757d;
+  margin-top: 0px !important;
 }
 
 /* Comment actions styling */
@@ -928,7 +929,7 @@
 .comment-text {
   font-size: 0.9rem;
   color: #334155;
-  margin: 0;
+  margin-top: 5px;
 }
 
 .comment-time {
@@ -1489,4 +1490,13 @@
 }
 .userinitials {
   margin-left: 0 !important;
+}
+
+.top3-second,
+.top3-third {
+  margin-top: 9px;
+}
+
+.post-time {
+  font-size: 0.7rem !important;
 }

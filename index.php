@@ -553,8 +553,9 @@ foreach ($posts as $post) {
             echo html_writer::tag('div', fullname($commentuser), array('class' => 'fw-bold'));
             // Highlight mentions in comment content
             $formatted_comment_content = local_recognition_format_mentions($comment->content);
-            echo html_writer::div($formatted_comment_content, 'comment-text');
             echo html_writer::div(userdate($comment->timecreated, get_string('strftimerecentfull', 'core_langconfig')), 'comment-time text-muted small');
+            echo html_writer::div($formatted_comment_content, 'comment-text');
+            
             echo html_writer::end_div();
 
             // Düzenleme ve silme ikonları (sadece yorum sahibi veya admin/yönetici görebilir)
