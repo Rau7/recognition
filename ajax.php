@@ -67,14 +67,23 @@ try {
                 } else {
                     foreach ($comments as $comment) {
                         $html .= html_writer::start_div('comment mb-2');
-                        $html .= html_writer::empty_tag('img', array(
-                            'src' => $OUTPUT->user_picture($comment, array('size' => 24)),
-                            'class' => 'rounded-circle mr-2',
-                            'style' => 'width: 24px; height: 24px;'
-                        ));
-                        $html .= html_writer::start_div('comment-content');
-                        $html .= html_writer::tag('strong', fullname($comment), array('class' => 'mr-2'));
-                        $html .= html_writer::tag('span', $comment->content);
+                        // Prepare a user object for fullname and user_picture
+$userobj = new stdClass();
+$userobj->id = $comment->userid;
+$userobj->firstname = $comment->firstname;
+$userobj->lastname = $comment->lastname;
+$userobj->picture = isset($comment->picture) ? $comment->picture : 0;
+$userobj->imagealt = isset($comment->imagealt) ? $comment->imagealt : '';
+// AJAX ortamında $OUTPUT->user_picture kullanılamaz. Kullanıcı görseli URL'sini elle üret.
+$imgurl = $CFG->wwwroot . '/user/pix.php/' . $userobj->id . '/f1.jpg';
+$html .= html_writer::empty_tag('img', array(
+    'src' => $imgurl,
+    'class' => 'rounded-circle mr-2',
+    'style' => 'width: 24px; height: 24px;'
+));
+$html .= html_writer::start_div('comment-content');
+$html .= html_writer::tag('strong', fullname($userobj), array('class' => 'mr-2'));
+$html .= html_writer::tag('span', $comment->content);
                         $html .= html_writer::end_div(); // comment-content
                         $html .= html_writer::end_div(); // comment
                     }
@@ -86,6 +95,7 @@ try {
                     'count' => count($comments)
                 );
             } catch (Exception $e) {
+                throw new Exception($e);
                 $result['success'] = false;
                 $result['message'] = 'Error getting comments: ' . $e->getMessage();
             }

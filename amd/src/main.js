@@ -203,7 +203,7 @@ define(["jquery", "core/notification"], function ($, Notification) {
         commentsSection.slideToggle();
 
         if (commentsSection.find(".comments-list").length === 0) {
-          commentsSection.prepend('<div class="comments-list"></div>');
+          //commentsSection.prepend('<div class="comments-list"></div>');
           loadComments(recordId, commentsSection, btn);
         }
       });

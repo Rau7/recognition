@@ -80,7 +80,7 @@ class local_recognition_external extends external_api {
 
         try {
             switch ($params['action']) {
-                case 'get_comments':
+                case 'getcomments':
                     $post = $DB->get_record('local_recognition_records', ['id' => $params['postid']]);
                     if (!$post) {
                         throw new moodle_exception('postnotfound', 'local_recognition', '', $params['postid']);
@@ -99,7 +99,7 @@ class local_recognition_external extends external_api {
                     if (empty($comments)) {
                         $html = html_writer::tag('div', 'Henüz yorum yapılmamış.', ['class' => 'text-muted text-center py-3']);
                     } else {
-                        $html .= html_writer::start_div('comments-list');
+                        
                         $index = 0;
                         foreach ($comments as $comment) {
                             $style = "--comment-depth: {$index}";
