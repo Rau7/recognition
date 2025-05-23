@@ -1472,7 +1472,7 @@
   line-height: 1.4rem;
 }
 
-.user-info h5 small small {
+.user-info h5 {
   color: #fff !important;
 }
 
@@ -1481,5 +1481,12 @@
 }
 
 .card-body .list-group-item > div {
+  margin-left: 0 !important;
+}
+
+.badge.bg-secondary {
+  color: #c8c8c8 !important;
+}
+.userinitials {
   margin-left: 0 !important;
 }

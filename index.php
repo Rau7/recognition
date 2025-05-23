@@ -747,48 +747,44 @@ if (!$is_ajax) {
 
     echo html_writer::start_div('card-body');
 
-    // Top 3 users with special layout
-    echo html_writer::start_div('top-3-container mb-4');
-    $top_3_users = array_slice($rankings, 0, 3);
+    // Top 3 users with special layout (modern, responsive)
+echo html_writer::start_div('top-3-container mb-4');
+$top_3_users = array_slice($rankings, 0, 3);
+echo html_writer::start_div('top-3-flex d-flex flex-wrap justify-content-center align-items-stretch gap-3');
 
-    echo html_writer::start_div('row align-items-center');
+// First place
+$first_user = core_user::get_user($top_3_users[0]->userid);
+echo html_writer::start_div('top3-card top3-first flex-fill text-center p-3 d-flex flex-column align-items-center');
+global $OUTPUT;
+$userpicture = $OUTPUT->user_picture($first_user, array('size' => 72, 'class' => 'top3-avatar top3-avatar-first'));
+echo html_writer::div($userpicture, 'user-avatar-large mb-2 position-relative');
+echo html_writer::tag('i', '', array('class' => 'fas fa-crown top3-crown position-absolute text-warning'));
+echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold fs-5 mt-2 mb-1'));
+echo html_writer::tag('span', number_format($top_3_users[0]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'badge bg-warning text-dark px-3 py-2 mb-2'));
+echo html_writer::end_div();
 
-    // First place
-    echo html_writer::start_div('col-md-4 text-center');
-    $first_user = core_user::get_user($top_3_users[0]->userid);
-    echo html_writer::start_div('position-relative d-inline-block');
-    global $OUTPUT;
-    $userpicture = $OUTPUT->user_picture($first_user, array('size' => 65));
-    echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-crown text-warning crown-icon')), 'user-avatar-large mb-2');
-    echo html_writer::tag('div', fullname($first_user), array('class' => 'fw-bold fs-5'));
-    echo html_writer::tag('small', number_format($top_3_users[0]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted d-block'));
-    echo html_writer::end_div();
-    echo html_writer::end_div();
+// Second place
+$second_user = core_user::get_user($top_3_users[1]->userid);
+echo html_writer::start_div('top3-card top3-second flex-fill text-center p-3 d-flex flex-column align-items-center');
+$userpicture = $OUTPUT->user_picture($second_user, array('size' => 60, 'class' => 'top3-avatar top3-avatar-second'));
+echo html_writer::div($userpicture, 'user-avatar-medium mb-2 position-relative');
+echo html_writer::tag('i', '', array('class' => 'fas fa-medal top3-medal position-absolute text-secondary'));
+echo html_writer::tag('div', fullname($second_user), array('class' => 'fw-bold mt-2 mb-1'));
+echo html_writer::tag('span', number_format($top_3_users[1]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'badge bg-secondary px-3 py-2 mb-2'));
+echo html_writer::end_div();
 
-    // Second place
-    echo html_writer::start_div('col-md-4 text-center');
-    $second_user = core_user::get_user($top_3_users[1]->userid);
-    echo html_writer::start_div('position-relative d-inline-block');
-    $userpicture = $OUTPUT->user_picture($second_user, array('size' => 50));
-    echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-secondary medal-icon')), 'user-avatar-medium mb-2');
-    echo html_writer::tag('div', fullname($second_user), array('class' => 'fw-bold'));
-    echo html_writer::tag('small', number_format($top_3_users[1]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
-    echo html_writer::end_div();
-    echo html_writer::end_div();
+// Third place
+$third_user = core_user::get_user($top_3_users[2]->userid);
+echo html_writer::start_div('top3-card top3-third flex-fill text-center p-3 d-flex flex-column align-items-center');
+$userpicture = $OUTPUT->user_picture($third_user, array('size' => 60, 'class' => 'top3-avatar top3-avatar-third'));
+echo html_writer::div($userpicture, 'user-avatar-medium mb-2 position-relative');
+echo html_writer::tag('i', '', array('class' => 'fas fa-medal top3-medal position-absolute text-bronze'));
+echo html_writer::tag('div', fullname($third_user), array('class' => 'fw-bold mt-2 mb-1'));
+echo html_writer::tag('span', number_format($top_3_users[2]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'badge bg-bronze text-dark px-3 py-2 mb-2'));
+echo html_writer::end_div();
 
-    // Third place
-    echo html_writer::start_div('col-md-4 text-center');
-    $third_user = core_user::get_user($top_3_users[2]->userid);
-    echo html_writer::start_div('position-relative d-inline-block');
-    $userpicture = $OUTPUT->user_picture($third_user, array('size' => 50));
-    echo html_writer::div($userpicture . html_writer::tag('i', '', array('class' => 'fas fa-medal text-bronze medal-icon')), 'user-avatar-medium mb-2');
-    echo html_writer::tag('div', fullname($third_user), array('class' => 'fw-bold'));
-    echo html_writer::tag('small', number_format($top_3_users[2]->points) . ' ' . get_string('points', 'local_recognition'), array('class' => 'text-muted'));
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-
-    echo html_writer::end_div(); // end row
-    echo html_writer::end_div(); // end top-3-container
+echo html_writer::end_div(); // end top-3-flex
+echo html_writer::end_div(); // end top-3-container
 
     // CSV indirme butonu (sadece admin ve yöneticiler için)
     if (has_capability('moodle/site:config', context_system::instance())) {
