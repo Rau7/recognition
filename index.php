@@ -139,19 +139,23 @@ if (!$is_ajax) {
     echo html_writer::end_div();
     echo html_writer::start_div('card-body');
     echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
-    foreach ($most_liked_posts as $post) {
-        $userobj = $DB->get_record('user', array('id' => $post->fromid));
-        if ($userobj) {
-            echo html_writer::start_tag('li', array('class' => 'mb-2'));
-            echo html_writer::start_div('d-flex align-items-center');
-            echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-            echo html_writer::start_div('flex-grow-1');
-            echo html_writer::tag('div', fullname($userobj));
-            echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
-            echo html_writer::end_div();
-            echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
-            echo html_writer::end_div();
-            echo html_writer::end_tag('li');
+    if (empty($most_liked_posts)) {
+        echo html_writer::tag('li', get_string('nolikeds', 'local_recognition'), array('class' => 'mb-2 text-muted'));
+    } else {
+        foreach ($most_liked_posts as $post) {
+            $userobj = $DB->get_record('user', array('id' => $post->fromid));
+            if ($userobj) {
+                echo html_writer::start_tag('li', array('class' => 'mb-2'));
+                echo html_writer::start_div('d-flex align-items-center');
+                echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+                echo html_writer::start_div('flex-grow-1');
+                echo html_writer::tag('div', fullname($userobj));
+                echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+                echo html_writer::end_div();
+                echo html_writer::tag('span', $post->like_count, array('class' => 'badge bg-danger'));
+                echo html_writer::end_div();
+                echo html_writer::end_tag('li');
+            }
         }
     }
     echo html_writer::end_tag('ul');
@@ -167,11 +171,23 @@ if (!$is_ajax) {
     echo html_writer::end_div();
     echo html_writer::start_div('card-body');
     echo html_writer::start_tag('ul', array('class' => 'list-unstyled mb-0'));
-    foreach ($most_commented_posts as $post) {
-        $userobj = $DB->get_record('user', array('id' => $post->fromid));
-        if ($userobj) {
-            echo html_writer::start_tag('li', array('class' => 'mb-2'));
-            echo html_writer::start_div('d-flex align-items-center');
+    if (empty($most_commented_posts)) {
+        echo html_writer::tag('li', get_string('nocommentedposts', 'local_recognition'), array('class' => 'mb-2 text-muted'));
+    } else {
+        foreach ($most_commented_posts as $post) {
+            $userobj = $DB->get_record('user', array('id' => $post->fromid));
+            if ($userobj) {
+                echo html_writer::start_tag('li', array('class' => 'mb-2'));
+                echo html_writer::start_div('d-flex align-items-center');
+                echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+                echo html_writer::start_div('flex-grow-1');
+                echo html_writer::tag('div', fullname($userobj));
+                echo html_writer::tag('small', mb_substr($post->message, 0, 30) . '...', array('class' => 'text-muted d-block'));
+                echo html_writer::end_div();
+                echo html_writer::tag('span', $post->comment_count, array('class' => 'badge bg-success'));
+                echo html_writer::end_div();
+                echo html_writer::end_tag('li');
+            }
             echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
             echo html_writer::start_div('flex-grow-1');
             echo html_writer::tag('div', fullname($userobj));
@@ -197,19 +213,22 @@ if (!$is_ajax) {
     echo html_writer::start_div('card-body p-0');
     echo html_writer::start_tag('ul', array('class' => 'list-group list-group-flush'));
 
-    foreach ($most_liking_users as $user) {
-        $userobj = $DB->get_record('user', array('id' => $user->id));
-        echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
-        echo html_writer::start_div('d-flex align-items-center flex-grow-1');
-        echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-        echo html_writer::start_div();
-        echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
-        echo html_writer::end_div();
-        echo html_writer::end_div();
-        echo html_writer::tag('span', $user->like_count, array('class' => 'badge bg-info'));
-        echo html_writer::end_tag('li');
+    if (empty($most_liking_users)) {
+        echo html_writer::tag('li', get_string('nolikers', 'local_recognition'), array('class' => 'list-group-item text-muted'));
+    } else {
+        foreach ($most_liking_users as $user) {
+            $userobj = $DB->get_record('user', array('id' => $user->id));
+            echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+            echo html_writer::start_div('d-flex align-items-center flex-grow-1');
+            echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+            echo html_writer::start_div();
+            echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
+            echo html_writer::end_div();
+            echo html_writer::end_div();
+            echo html_writer::tag('span', $user->like_count, array('class' => 'badge bg-info'));
+            echo html_writer::end_tag('li');
+        }
     }
-
     echo html_writer::end_tag('ul');
     echo html_writer::end_div(); // card-body
     echo html_writer::end_div(); // card
@@ -225,19 +244,22 @@ if (!$is_ajax) {
     echo html_writer::start_div('card-body p-0');
     echo html_writer::start_tag('ul', array('class' => 'list-group list-group-flush'));
 
-    foreach ($most_commenting_users as $user) {
-        $userobj = $DB->get_record('user', array('id' => $user->id));
-        echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
-        echo html_writer::start_div('d-flex align-items-center flex-grow-1');
-        echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
-        echo html_writer::start_div();
-        echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
-        echo html_writer::end_div();
-        echo html_writer::end_div();
-        echo html_writer::tag('span', $user->comment_count, array('class' => 'badge bg-warning text-dark'));
-        echo html_writer::end_tag('li');
+    if (empty($most_commenting_users)) {
+        echo html_writer::tag('li', get_string('nocommenters', 'local_recognition'), array('class' => 'list-group-item text-muted'));
+    } else {
+        foreach ($most_commenting_users as $user) {
+            $userobj = $DB->get_record('user', array('id' => $user->id));
+            echo html_writer::start_tag('li', array('class' => 'list-group-item d-flex align-items-center'));
+            echo html_writer::start_div('d-flex align-items-center flex-grow-1');
+            echo html_writer::div($OUTPUT->user_picture($userobj, array('size' => 32)), 'user-avatar me-2');
+            echo html_writer::start_div();
+            echo html_writer::tag('div', fullname($userobj), array('class' => 'fw-bold'));
+            echo html_writer::end_div();
+            echo html_writer::end_div();
+            echo html_writer::tag('span', $user->comment_count, array('class' => 'badge bg-warning text-dark'));
+            echo html_writer::end_tag('li');
+        }
     }
-
     echo html_writer::end_tag('ul');
     echo html_writer::end_div(); // card-body
     echo html_writer::end_div(); // card

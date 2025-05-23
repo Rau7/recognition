@@ -1402,3 +1402,64 @@
   color: #005fa3;
   text-decoration: underline;
 }
+
+@media (max-width: 1320px) {
+  .stat-card-content {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .stat-numbers {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .received-stats,
+  .sent-stats {
+    min-width: 45%;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .stat-number,
+  .stat-label {
+    font-size: 1rem;
+  }
+
+  .stat-icon-section {
+    width: 100%;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .stat-icon-section small small {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.card-header.d-flex {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.25rem;
+}
+
+.card-header.d-flex i {
+  margin-right: 0 !important;
+  margin-bottom: 0.25rem;
+}
+
+.card-header.d-flex h5 {
+  font-size: 1rem;
+}
+
+.user-info h5 small small {
+  color: #fff !important;
+}

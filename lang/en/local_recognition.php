@@ -32,6 +32,10 @@ $string['submit'] = 'Give Recognition';
 $string['attachfile'] = 'Add Photo';
 
 // Messages
+$string['nocommentedposts'] = 'No posts have been commented on yet.';
+$string['nolikeds'] = 'No posts have been liked yet.';
+$string['nolikers'] = 'No users have liked any posts yet.';
+$string['nocommenters'] = 'No users have commented on any posts yet.';
 $string['recognitiongiven'] = 'Recognition given successfully!';
 $string['mention_notification'] = 'Takdir Duvarı: Mention Bildirimi';
 $string['recognitionreceived'] = '{$a} has recognized your contribution!';

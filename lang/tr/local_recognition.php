@@ -32,6 +32,10 @@ $string['submit'] = 'Takdir Ver';
 $string['attachfile'] = 'Fotoğraf Ekle';
 
 // Messages
+$string['nocommentedposts'] = 'Henüz yorum yapılmış gönderi yok.';
+$string['nolikeds'] = 'Henüz beğenilmiş gönderi yok.';
+$string['nolikers'] = 'Henüz beğeni yapan kullanıcı yok.';
+$string['nocommenters'] = 'Henüz yorum yapan kullanıcı yok.';
 $string['recognitiongiven'] = 'Takdir başarıyla verildi!';
 $string['recognitionreceived'] = '{$a} katkınızı takdir etti!';
 $string['pointsearned'] = '{$a} puan kazandınız!';
